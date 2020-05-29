@@ -2,8 +2,9 @@
 // 2020 5-17  tuxiaoya
 #include "Arduino.h"
 #include <TimeLib.h> 
-#define _HWSG_VERSION "2020.5.17" // software version of this library
 
+#define _HWSG_VERSION "2020.5.17" // software version of this library
+#define H2H_BLE_DEBUG 
 
 #ifndef MGHWSG2_H
 #define MGHWSG2_H
@@ -22,6 +23,8 @@
 // È¡ÎÂ¶È TEM ·µ»Ø×´Ì¬
 #define HWSG_TEM_OK 1
 #define HWSG_TEM_illegal 0
+#define HWSG_TEM_simulateTem 2
+
 
 #define HWSG2_uart_timeout 1000 //  uart_timeout   1000 ms
 #define HWSG2_Online_baudrate 1200 //      baudrate   1200 when use as online

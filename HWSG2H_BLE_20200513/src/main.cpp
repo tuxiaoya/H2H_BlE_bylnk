@@ -27,9 +27,14 @@
  *************************************************************/
 
 /* Comment this out to disable prints and save space */
+
+
+
+
 #define BLYNK_PRINT Serial
 
 #define BLYNK_USE_DIRECT_CONNECT
+#define DEFAULT_Adr  0       // 0=逻辑ID  0xc0在子函数中加 
 
 #include <Wire.h>
 #include "Adafruit_mMLX90614.h"
@@ -39,6 +44,7 @@
 #include <BLEServer.h>
 #include "MGHWSG2.h"
 
+
 HardwareSerial M5310_Serial(0);
 HardwareSerial DIWEN_Serial(1);
 HardwareSerial HWSG_Serial(2);
@@ -46,16 +52,16 @@ HardwareSerial HWSG_Serial(2);
 // Go to the Project Settings (nut icon).
 char auth[] = "e8706c3dee01426d9a5b9a766b714c64";
 
-boolean Buf2H_OK = true; // false;
+boolean HWSGTxD_OK = true; // false;
 BlynkTimer timer_2H;
 // (uint8_t HWSGAddress, HWSG2_TYPE Type, HardwareSerial *HardwareSerialport)
 MinGuang_HWSH2 HWSG2H(0, 4, &HWSG_Serial); //
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 
 
+HWSG2_Online_Temp SecTick_Tem;
+time_t H2Htime;
 
-uint16_t ObjTemp;
-uint8_t AmbTemp;
 
 // This function will be called every time
 // in Blynk app writes values to the Virtual Pin 1
@@ -67,9 +73,9 @@ BLYNK_WRITE(V0)
   // double d = param.asDouble();
   Serial.print("V0 Switch is push ");
   Serial.println(pinValue);
-  if (pinValue == 1 && Buf2H_OK)
+  if (pinValue == 1 && HWSGTxD_OK)
   {
-    Serial.print("buf is ok ");
+    Serial.print("HWSGTxD_OK ,allow send 0xc0 ");
   }
 }
 
@@ -77,20 +83,34 @@ BLYNK_WRITE(V0)
 #define VirPort_ObjTemp V5
 #define VirPort_AmbTemp V6
 void H2HTimerEvent()
-{
+{ 
   // You can send any value at any time.
   // Please don't send more that 10 values per second.
+  if(HWSGTxD_OK){
+    
+    SecTick_Tem=HWSG2H.GetHWSG2_RealtimeTemp(DEFAULT_Adr);
 
-  Blynk.virtualWrite(VirPort_ObjTemp, ObjTemp);
-  Blynk.virtualWrite(VirPort_AmbTemp, AmbTemp);
-  Serial.println("send 0xc0 twice"); 
+    #ifdef H2H_BLE_DEBUG
+    Serial.print("ObjTemp="); Serial.println(SecTick_Tem.ObjTemp); 
+    Serial.print("AmbTemp="); Serial.println(SecTick_Tem.AmbTemp); 
+    Serial.print("time_t="); Serial.println(SecTick_Tem.timeStamp); 
+    Serial.print("State="); Serial.println(SecTick_Tem.Temp_State); 
+    #else    
+ 
+    #endif
+
+
+  }
+  Blynk.virtualWrite(VirPort_ObjTemp, SecTick_Tem.ObjTemp);
+  Blynk.virtualWrite(VirPort_AmbTemp, SecTick_Tem.AmbTemp);
+  
 }
 
 void setup()
 {
   // Debug console
   Serial.begin(115200);
-  Serial.println("Waiting for connections...");
+  Serial.println("Fucking for connections...");
   Blynk.setDeviceName("MG.HWSG2H");
   Blynk.begin(auth);
 

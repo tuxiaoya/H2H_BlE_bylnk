@@ -1,6 +1,7 @@
 
 #include "MGHWSG2.h"
 
+
 #define SERIAL_WRITE(...) _h2Serial->write(__VA_ARGS__)
 
 MinGuang_HWSH2::MinGuang_HWSH2(uint8_t HWSGAddress, uint8_t Type, HardwareSerial *HardwareSerialport)
@@ -21,11 +22,21 @@ boolean MinGuang_HWSH2::Begin(uint32_t baudrate)
 HWSG2_Online_Temp MinGuang_HWSH2::GetHWSG2_RealtimeTemp(uint8_t HWSGAddress)
 {
     HWSG2_Online_Uartframe Huf;
+
+    #ifdef H2H_BLE_DEBUG
+        HWSG2_Online_Temp simulateTem;
+        simulateTem.ObjTemp = 888+ random(40);
+        simulateTem.AmbTemp = 20+ random(4);
+        simulateTem.Temp_State = HWSG_TEM_simulateTem;
+        simulateTem.timeStamp = now();
+        return simulateTem;
+    #else    
     TXD_GETTEM_Handshake(HWSGAddress); //·¢Á½¸öÎÕÊÖ  0-15+0xC0
     Huf = RXD_TEM_Frame(HWSGAddress);  // µÈ´ý½ÓÊÜuartÊý¾ÝÖ¡  µ½ huf
     return HWSGUART_Transto_Temp(Huf); // °ÑÊý¾ÝÖ¡×ª»»Îª ÎÂ¶È+»·¾³ÎÂ¶È+Êý¾Ý×´Ì¬  ·µ»Ø
+    #endif
 }
- 
+
 // #define HWSG_TEM_OK 1
 // #define HWSG_TEM_illegal 0
 // °ÑÊý¾ÝÖ¡×ª»»Îª ÎÂ¶È+»·¾³ÎÂ¶È+Êý¾Ý×´Ì¬
@@ -144,14 +155,11 @@ HWSG2_Online_Uartframe MinGuang_HWSH2::RXD_TEM_Frame(uint8_t HWSGAddress) // ·¢³
     return reading_frame;
 }
 // ·¢³ö D0+ ºó µÈ´ý½ÓÊÜ D0+16Ö¡byte Parameters
-HWSG2_Parameters_Str MinGuang_HWSH2::RXD_Parameters_HWSG(uint8_t HWSGAddress = 0) 
+HWSG2_Parameters_Str MinGuang_HWSH2::RXD_Parameters_HWSG(uint8_t HWSGAddress = 0)
 {
 }
-
 
 // ·¢³ö E0+ ºó ½ÓÊÜµ½ E0+  ÕýÈ·ºóËÍ 16Ö¡byte Parameters
-boolean MinGuang_HWSH2::RXD_ParOK_16Parameters(uint8_t HWSGAddress = 0) 
+boolean MinGuang_HWSH2::RXD_ParOK_16Parameters(uint8_t HWSGAddress = 0)
 {
 }
-
-
