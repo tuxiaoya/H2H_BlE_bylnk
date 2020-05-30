@@ -21,16 +21,16 @@ boolean MinGuang_HWSH2::Begin(uint32_t baudrate)
 
 HWSG2_Online_Temp MinGuang_HWSH2::GetHWSG2_RealtimeTemp(uint8_t HWSGAddress)
 {
-    HWSG2_Online_Uartframe Huf;
-
-    #ifdef H2H_BLE_DEBUG
+    
+    #ifdef H2H_BLE_DEBUG  //模拟随机温度
         HWSG2_Online_Temp simulateTem;
         simulateTem.ObjTemp = 888+ random(40);
         simulateTem.AmbTemp = 20+ random(4);
         simulateTem.Temp_State = HWSG_TEM_simulateTem;
         simulateTem.timeStamp = now();
         return simulateTem;
-    #else    
+    #else       // 真实状态
+    HWSG2_Online_Uartframe Huf;
     TXD_GETTEM_Handshake(HWSGAddress); //发两个握手  0-15+0xC0
     Huf = RXD_TEM_Frame(HWSGAddress);  // 等待接受uart数据帧  到 huf
     return HWSGUART_Transto_Temp(Huf); // 把数据帧转换为 温度+环境温度+数据状态  返回

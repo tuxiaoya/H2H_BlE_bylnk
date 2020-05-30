@@ -71,12 +71,11 @@ BLYNK_WRITE(V0)
   // You can also use:
   // String i = param.asStr();
   // double d = param.asDouble();
+ #ifdef H2H_BLE_DEBUG
   Serial.print("V0 Switch is push ");
   Serial.println(pinValue);
-  if (pinValue == 1 && HWSGTxD_OK)
-  {
-    Serial.print("HWSGTxD_OK ,allow send 0xc0 ");
-  }
+  #endif
+  HWSGTxD_OK = !HWSGTxD_OK;
 }
 
 // this function do every second push Tem to blynk app 11 
@@ -86,10 +85,8 @@ void H2HTimerEvent()
 { 
   // You can send any value at any time.
   // Please don't send more that 10 values per second.
-  if(HWSGTxD_OK){
-    
+  if(HWSGTxD_OK){    
     SecTick_Tem=HWSG2H.GetHWSG2_RealtimeTemp(DEFAULT_Adr);
-
     #ifdef H2H_BLE_DEBUG
     Serial.print("ObjTemp="); Serial.println(SecTick_Tem.ObjTemp); 
     Serial.print("AmbTemp="); Serial.println(SecTick_Tem.AmbTemp); 
@@ -98,12 +95,9 @@ void H2HTimerEvent()
     #else    
  
     #endif
-
-
   }
   Blynk.virtualWrite(VirPort_ObjTemp, SecTick_Tem.ObjTemp);
-  Blynk.virtualWrite(VirPort_AmbTemp, SecTick_Tem.AmbTemp);
-  
+  Blynk.virtualWrite(VirPort_AmbTemp, SecTick_Tem.AmbTemp);  
 }
 
 void setup()
