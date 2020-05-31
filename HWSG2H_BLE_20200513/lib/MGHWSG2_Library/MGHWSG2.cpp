@@ -170,3 +170,11 @@ HWSG2_Parameters_Str MinGuang_HWSH2::Get_HWSG2_parameters(uint8_t HWSGAddress) /
  return  Parameters_LOW;
 #endif
 }
+
+//   // …Ë÷√≤Œ ˝
+boolean MinGuang_HWSH2::Set_HWSG2_parameters(uint8_t HWSGAddress, HWSG2_Parameters_Str Par_default)                  
+{
+#ifdef H2H_BLE_DEBUG
+ return  true;
+#endif
+}

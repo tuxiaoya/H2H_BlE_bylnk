@@ -38,25 +38,6 @@
 #define LED_BUILTIN   2     // 蓝色LED
 
 
-// blynk V引脚 定义
-#define VirPort_ONbutton V0
-#define VirPort_ObjTemp V5
-#define VirPort_AmbTemp V6
-#define VirPort_GETParameters V10
-#define VirPort_SETParameters V11
-#define VirPort_ParHwSG_radiant V20 //  发射率坡度  9.9   -9.9    20%--20%
-#define VirPort_ParHwSG_420mARate V21   //  4-20MA 微调  9.9%   -9.9%
-#define VirPort_ParHwSG_4mAStartPoint V22 //  X100
-#define VirPort_ParHwSG_20mAENDtPoint V23  //   X100
-#define VirPort_ParHwSG_TEMUPLimit V24    //   X100
-#define VirPort_ParHwSG_TEMDOWNLimit V25  //   X100 
-#define VirPort_ParHwSG_DisUpdatePeriod V26 //
-#define VirPort_ParHwSG_DisStayPeriod V27   //  0.1-9.9
-#define VirPort_ParHwSG_AntiBaseLine V28    //  20-40
-#define VirPort_ParHwSG_OverSignalline V29 //
-#define VirPort_ParHwSG_GapIn1Sec V30       //  Gap limit of thermometricbase in one second
-#define VirPort_ParHwSG_UartID V31          //  0-F// bool HwSGsetup6_LockBit;            //  true or  faule
-
 #include <Wire.h>
 #include "Adafruit_mMLX90614.h"
 #include <HardwareSerial.h>
@@ -64,6 +45,7 @@
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include "MGHWSG2.h"
+#include "H2H_blynk.h"
 
 
 HardwareSerial M5310_Serial(0);
@@ -79,43 +61,59 @@ BlynkTimer timer_2H;
 MinGuang_HWSH2 HWSG2H(0, 4, &HWSG_Serial); // 
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 
-
+HWSG2_Parameters_Str Working_Par ;
 HWSG2_Online_Temp SecTick_Tem;
 time_t H2Htime;
+// Attach virtual serial terminal to Virtual Pin VirPort_Terminal
+WidgetTerminal terminal(VirPort_Terminal);
 
 void set_led(byte status)
 {
   digitalWrite(LED_BUILTIN, status);
 }
 
-// This function will be called every time
-// blynk button ON to swtich  tem
+
+// blynk button  GETParameters
 BLYNK_WRITE(VirPort_GETParameters)
+{  
+  // int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
+  Working_Par=HWSG2H.Get_HWSG2_parameters(DEFAULT_Adr);
+  Blynk.virtualWrite(VirPort_ParHwSG_radiant, Working_Par.HwSGsetup0_radiant );
+  Blynk.virtualWrite(VirPort_ParHwSG_420mARate, Working_Par.HwSGsetup1_420mARate);
+  Blynk.virtualWrite(VirPort_ParHwSG_4mAStartPoint, Working_Par.HwSGsetup4_420mAStartPoint );
+  Blynk.virtualWrite(VirPort_ParHwSG_20mAENDtPoint, Working_Par.HwSGsetup5_420mAENDtPoint );
+  Blynk.virtualWrite(VirPort_ParHwSG_TEMUPLimit, Working_Par.HwSGsetup9_TEMUPLimit);
+  Blynk.virtualWrite(VirPort_ParHwSG_TEMDOWNLimit, Working_Par.HwSGsetup10_TEMDOWNLimit);
+  Blynk.virtualWrite(VirPort_ParHwSG_DisUpdatePeriod, Working_Par.HwSGsetup2_DisUpdatePeriod);
+  Blynk.virtualWrite(VirPort_ParHwSG_DisStayPeriod, Working_Par.HwSGsetup3_DisStayPeriod);
+  Blynk.virtualWrite(VirPort_ParHwSG_AntiBaseLine, Working_Par.HwSGsetup6_AntiBaseLine);
+  Blynk.virtualWrite(VirPort_ParHwSG_OverSignalline, Working_Par.HwSGsetup12_OverSignalline);
+  Blynk.virtualWrite(VirPort_ParHwSG_GapIn1Sec, Working_Par.HwSGsetup11_GapIn1Sec);
+  Blynk.virtualWrite(VirPort_ParHwSG_UartID, Working_Par.HwSGsetup8_UartID);
+  terminal.println(F("Get parameters OK!"  ));
+}
+
+// blynk button  SETParameters
+BLYNK_WRITE(VirPort_SETParameters)
 {
-  HWSG2_Parameters_Str Par_Toblynk ;
-  int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
-  Par_Toblynk=HWSG2H.Get_HWSG2_parameters(DEFAULT_Adr);
-  Blynk.virtualWrite(VirPort_ParHwSG_radiant, Par_Toblynk.HwSGsetup0_radiant );
-  Blynk.virtualWrite(VirPort_ParHwSG_420mARate, Par_Toblynk.HwSGsetup1_420mARate);
-  Blynk.virtualWrite(VirPort_ParHwSG_4mAStartPoint, Par_Toblynk.HwSGsetup4_420mAStartPoint );
-  Blynk.virtualWrite(VirPort_ParHwSG_20mAENDtPoint, Par_Toblynk.HwSGsetup5_420mAENDtPoint );
-  Blynk.virtualWrite(VirPort_ParHwSG_TEMUPLimit, Par_Toblynk.HwSGsetup9_TEMUPLimit);
-  Blynk.virtualWrite(VirPort_ParHwSG_TEMDOWNLimit, Par_Toblynk.HwSGsetup10_TEMDOWNLimit);
-  Blynk.virtualWrite(VirPort_ParHwSG_DisUpdatePeriod, Par_Toblynk.HwSGsetup2_DisUpdatePeriod);
-  Blynk.virtualWrite(VirPort_ParHwSG_DisStayPeriod, Par_Toblynk.HwSGsetup3_DisStayPeriod);
-  Blynk.virtualWrite(VirPort_ParHwSG_AntiBaseLine, Par_Toblynk.HwSGsetup6_AntiBaseLine);
-  Blynk.virtualWrite(VirPort_ParHwSG_OverSignalline, Par_Toblynk.HwSGsetup12_OverSignalline);
-  Blynk.virtualWrite(VirPort_ParHwSG_GapIn1Sec, Par_Toblynk.HwSGsetup11_GapIn1Sec);
-  Blynk.virtualWrite(VirPort_ParHwSG_UartID, Par_Toblynk.HwSGsetup8_UartID);
+  HWSGTxD_OK = false; // close sending uart 
+
+  if(HWSG2H.Set_HWSG2_parameters(DEFAULT_Adr, Working_Par)) //  如果发送参数成功
+  {
+    terminal.println(F("Set parameters!"  ));
+  } 
+  HWSGTxD_OK = true; // open sending uart 
+  
+
 }
 
 // blynk button ON to swtich  tem
 BLYNK_WRITE(VirPort_ONbutton)
 {
-  int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable                                
+//  int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable                                
 #ifdef H2H_BLE_DEBUG
   Serial.print("V0 Switch is push ");
-  Serial.println(pinValue);
+//  Serial.println(pinValue);
 #endif
   HWSGTxD_OK = !HWSGTxD_OK;
   set_led(HWSGTxD_OK);
@@ -150,8 +148,18 @@ void setup()
   Blynk.setDeviceName("MINGUANG_H2");
   Blynk.begin(auth);
   set_led(HWSGTxD_OK);
-
   timer_2H.setInterval(1000L, H2HTimerEvent);
+
+  // Clear the terminal content
+  terminal.clear();
+  // This will print Blynk Software version to the Terminal Widget when
+  // your hardware gets connected to Blynk Server
+  terminal.println(F("Blynk v" BLYNK_VERSION ": Device started"));
+  terminal.println(F("-------------"));
+  terminal.println(F("Type 'Marco' and get a reply, or type"));
+  terminal.println(F("anything else and get it printed back."));
+  terminal.flush();
+
 }
 
 void loop()
