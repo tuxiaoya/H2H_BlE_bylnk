@@ -70,17 +70,18 @@ struct HWSG2_Parameters_Str // HWSG2H 设定数据结构体   字节
                                         //  数据抽象体
     int8_t HwSGsetup0_radiant;         //  发射率坡度  9.9   -9.9    20%--20%
     int8_t HwSGsetup1_420mARate;       //  4-20MA 微调  9.9%   -9.9%
-    uint8_t HwSGsetup2_DisSperiod;      //  0.1-9.9
-    uint8_t HwSGsetup3_420mAStartPoint; //  X100
-    uint8_t HwSGsetup4_420mAENDtPoint;  //   X100
-    uint8_t HwSGsetup5_AntiBaseLine;    //  20-40
-    bool HwSGsetup6_LockBit;            //  true or  faule
-    uint8_t HwSGsetup7_UartID;          //  0-F
-    uint16_t HwSGsetup8_TEMUPLimit;     //   X100
-    uint16_t HwSGsetup9_TEMDOWNLimit;   //   X100
-    uint8_t HwSGsetup10_GapIn1Sec;      //  Gap limit of thermometricbase in one second
-    uint8_t HwSGsetup11_OverSignalline; //
-    uint8_t HwSGsetup12_Backup;          //
+    uint8_t HwSGsetup2_DisUpdatePeriod;  //  0.1-9.9
+    uint8_t HwSGsetup3_DisStayPeriod;    //  0.1-9.9
+    uint8_t HwSGsetup4_420mAStartPoint; //  X100
+    uint8_t HwSGsetup5_420mAENDtPoint;  //   X100
+    uint8_t HwSGsetup6_AntiBaseLine;    //  20-40
+    bool HwSGsetup7_LockBit;            //  true or  faule
+    uint8_t HwSGsetup8_UartID;          //  0-F
+    uint16_t HwSGsetup9_TEMUPLimit;     //   X100
+    uint16_t HwSGsetup10_TEMDOWNLimit;   //   X100
+    uint8_t HwSGsetup11_GapIn1Sec;      //  Gap limit of thermometricbase in one second
+    uint8_t HwSGsetup12_OverSignalline; //
+    uint8_t HwSGsetup13_Backup;          //
 } ;                                    //HWSG  参数   结构体
 // 默认HWSG2 参数结构体赋值
 //HWSG2_Parameters_Str Parameters2H_default ;
@@ -106,51 +107,54 @@ const HWSG2_Parameters_Str Parameters_HIGH = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, //HwSG_Parameters_frame[16]:{},
     HwSGsetup0_radiant : 0,
     HwSGsetup1_420mARate : 0,       //  4-20MA 微调  9.9%   -9.9%
-    HwSGsetup2_DisSperiod : 0,      //  0.1-9.9
-    HwSGsetup3_420mAStartPoint : 6, //  X100
-    HwSGsetup4_420mAENDtPoint : 12,  //   X100
-    HwSGsetup5_AntiBaseLine : 20,   //  20-40
-    HwSGsetup6_LockBit : false,     //  true or  faule
-    HwSGsetup7_UartID : 0,          //  0-F
-    HwSGsetup8_TEMUPLimit : 10,     //   X100
-    HwSGsetup9_TEMDOWNLimit : 4,    //   X100
-    HwSGsetup10_GapIn1Sec : 5,      //  Gap limit of thermometricbase in one second
-    HwSGsetup11_OverSignalline : 5, //
-    HwSGsetup12_Backup : 0,
+    HwSGsetup2_DisUpdatePeriod : 2, //  0.1-9.9
+    HwSGsetup3_DisStayPeriod : 2 ,
+    HwSGsetup4_420mAStartPoint : 6, //  X100
+    HwSGsetup5_420mAENDtPoint : 12, //   X100
+    HwSGsetup6_AntiBaseLine : 20,   //  20-40
+    HwSGsetup7_LockBit : false,     //  true or  faule
+    HwSGsetup8_UartID : 0,          //  0-F
+    HwSGsetup9_TEMUPLimit : 10,     //   X100
+    HwSGsetup10_TEMDOWNLimit : 4,    //   X100
+    HwSGsetup11_GapIn1Sec : 5,      //  Gap limit of thermometricbase in one second
+    HwSGsetup12_OverSignalline : 5, //
+    HwSGsetup13_Backup : 0,
 };
 // 默认HWSG2 中温参数
 const HWSG2_Parameters_Str Parameters_MID = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, //HwSG_Parameters_frame[16]:{},
     HwSGsetup0_radiant : 0,
     HwSGsetup1_420mARate : 0,       //  4-20MA 微调  9.9%   -9.9%
-    HwSGsetup2_DisSperiod : 0,      //  0.1-9.9
-    HwSGsetup3_420mAStartPoint : 3, //  X100
-    HwSGsetup4_420mAENDtPoint : 8,  //   X100
-    HwSGsetup5_AntiBaseLine : 20,   //  20-40
-    HwSGsetup6_LockBit : false,     //  true or  faule
-    HwSGsetup7_UartID : 0,          //  0-F
-    HwSGsetup8_TEMUPLimit : 7,     //   X100
-    HwSGsetup9_TEMDOWNLimit : 4,    //   X100
-    HwSGsetup10_GapIn1Sec : 5,      //  Gap limit of thermometricbase in one second
-    HwSGsetup11_OverSignalline : 5, //
-    HwSGsetup12_Backup : 0,
+    HwSGsetup2_DisUpdatePeriod : 2, //  0.1-9.9
+    HwSGsetup3_DisStayPeriod  : 2,
+    HwSGsetup4_420mAStartPoint : 3, //  X100
+    HwSGsetup5_420mAENDtPoint : 8,  //   X100
+    HwSGsetup6_AntiBaseLine : 20,   //  20-40
+    HwSGsetup7_LockBit : false,     //  true or  faule
+    HwSGsetup8_UartID : 0,          //  0-F
+    HwSGsetup9_TEMUPLimit : 7,      //   X100
+    HwSGsetup10_TEMDOWNLimit : 4,    //   X100
+    HwSGsetup11_GapIn1Sec : 5,      //  Gap limit of thermometricbase in one second
+    HwSGsetup12_OverSignalline : 5, //
+    HwSGsetup13_Backup : 0,
 };
 // 默认HWSG2 低温参数
 const HWSG2_Parameters_Str Parameters_LOW = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, //HwSG_Parameters_frame[16]:{},
     HwSGsetup0_radiant : 0,
     HwSGsetup1_420mARate : 0,       //  4-20MA 微调  9.9%   -9.9%
-    HwSGsetup2_DisSperiod : 0,      //  0.1-9.9
-    HwSGsetup3_420mAStartPoint : 1, //  X100
-    HwSGsetup4_420mAENDtPoint : 3,  //   X100
-    HwSGsetup5_AntiBaseLine : 20,   //  20-40
-    HwSGsetup6_LockBit : false,     //  true or  faule
-    HwSGsetup7_UartID : 0,          //  0-F
-    HwSGsetup8_TEMUPLimit : 3,     //   X100
-    HwSGsetup9_TEMDOWNLimit : 1,    //   X100
-    HwSGsetup10_GapIn1Sec : 5,      //  Gap limit of thermometricbase in one second
-    HwSGsetup11_OverSignalline : 5, //
-    HwSGsetup12_Backup : 0,
+    HwSGsetup2_DisUpdatePeriod : 2, //  0.1-9.9
+    HwSGsetup3_DisStayPeriod  : 2,
+    HwSGsetup4_420mAStartPoint : 1, //  X100
+    HwSGsetup5_420mAENDtPoint : 3,  //   X100
+    HwSGsetup6_AntiBaseLine : 20,   //  20-40
+    HwSGsetup7_LockBit : false,     //  true or  faule
+    HwSGsetup8_UartID : 0,          //  0-F
+    HwSGsetup9_TEMUPLimit : 3,      //   X100
+    HwSGsetup10_TEMDOWNLimit : 1,    //   X100
+    HwSGsetup11_GapIn1Sec : 5,      //  Gap limit of thermometricbase in one second
+    HwSGsetup12_OverSignalline : 5, //
+    HwSGsetup13_Backup : 0,
 };
 
 class MinGuang_HWSH2 // HWSG2   仪器类 MinGuang_HWSH2

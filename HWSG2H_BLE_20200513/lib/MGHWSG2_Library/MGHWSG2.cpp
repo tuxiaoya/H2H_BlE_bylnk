@@ -77,7 +77,7 @@ HWSG2_Online_Temp MinGuang_HWSH2::HWSGUART_Transto_Temp(HWSG2_Online_Uartframe h
     return ht;
 }
 
-//  命令送温度数据  CN   发送握手
+//  命令送温度数据  CN   发送握手   
 void MinGuang_HWSH2::TXD_GETTEM_Handshake(uint8_t HWSGAddress) //  发两个握手  0-15+0xC0  连续发两次  命令送温度数据  CN
 {
     SERIAL_WRITE(HWSGAddress + _HWSG_GETTEM_CMD0); // send 0xc0+ 2 times
@@ -162,4 +162,11 @@ HWSG2_Parameters_Str MinGuang_HWSH2::RXD_Parameters_HWSG(uint8_t HWSGAddress = 0
 // 发出 E0+ 后 接受到 E0+  正确后送 16帧byte Parameters
 boolean MinGuang_HWSH2::RXD_ParOK_16Parameters(uint8_t HWSGAddress = 0)
 {
+}
+
+HWSG2_Parameters_Str MinGuang_HWSH2::Get_HWSG2_parameters(uint8_t HWSGAddress) // get 参数
+{
+#ifdef H2H_BLE_DEBUG
+ return  Parameters_LOW;
+#endif
 }
