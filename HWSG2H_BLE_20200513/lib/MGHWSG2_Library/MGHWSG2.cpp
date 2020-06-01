@@ -30,10 +30,12 @@ HWSG2_Online_Temp MinGuang_HWSH2::GetHWSG2_RealtimeTemp(uint8_t HWSGAddress)
         simulateTem.timeStamp = now();
         return simulateTem;
     #else       // ÕæÊµ×´Ì¬
-    HWSG2_Online_Uartframe Huf;
+    HWSG2_Online_Uartframe Huartf;
+    HWSG2_Online_Temp HTem;
     TXD_GETTEM_Handshake(HWSGAddress); //·¢Á½¸öÎÕÊÖ  0-15+0xC0
-    Huf = RXD_TEM_Frame(HWSGAddress);  // µÈ´ı½ÓÊÜuartÊı¾İÖ¡  µ½ huf
-    return HWSGUART_Transto_Temp(Huf); // °ÑÊı¾İÖ¡×ª»»Îª ÎÂ¶È+»·¾³ÎÂ¶È+Êı¾İ×´Ì¬  ·µ»Ø
+    Huartf = RXD_TEM_Frame(HWSGAddress); // µÈ´ı½ÓÊÜuartÊı¾İÖ¡  µ½ huf                   
+    HTem = HWSGUART_Transto_Temp(Huartf); // °ÑÊı¾İÖ¡×ª»»Îª ÎÂ¶È+»·¾³ÎÂ¶È+Êı¾İ×´Ì¬  ·µ»Ø          
+    return HTem;
     #endif
 }
 
@@ -137,7 +139,7 @@ HWSG2_Online_Uartframe MinGuang_HWSH2::RXD_TEM_Frame(uint8_t HWSGAddress) // ·¢³
                     return reading_frame;
                 }
             }
-            else if ((reading_frame.HwSG_RX_data[idx] >> 4) != idx) // ÓÒÒÆ4Î» Î»²Ù×÷ºóÊı¾İ±äÁËÂğ£¿
+            else if ((reading_frame.HwSG_RX_data[idx] >> 4) != idx) // ÓÒÒÆ4Î» Ó¦¸ÃµÈÓÚÖ¡Î»ºÅ Î»²Ù×÷ºóÊı¾İ±äÁËÂğ£¿
             {
                 reading_frame.RX_state = HWSG_UART_BADPACKET; // Ö¡ÄÚÂß¼­´íÎó
                 return reading_frame;

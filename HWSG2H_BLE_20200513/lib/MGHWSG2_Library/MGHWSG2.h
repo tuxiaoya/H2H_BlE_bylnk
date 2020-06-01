@@ -4,7 +4,7 @@
 #include <TimeLib.h> 
 
 #define _HWSG_VERSION "2020.5.17" // software version of this library
-#define H2H_BLE_DEBUG 
+// #define H2H_BLE_DEBUG 
 
 #ifndef MGHWSG2_H
 #define MGHWSG2_H

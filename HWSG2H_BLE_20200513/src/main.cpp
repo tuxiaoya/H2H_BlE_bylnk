@@ -50,7 +50,7 @@
 
 HardwareSerial M5310_Serial(0);
 HardwareSerial DIWEN_Serial(1);
-HardwareSerial HWSG_Serial(2);
+HardwareSerial HWSG_Serial(2); //RX2 16  TX2 17
 // You should get Auth Token in the Blynk App. Parameters2H_default
 // Go to the Project Settings (nut icon).
 char auth[] = "d020f28398e74135a0ee9da7215c85b8";
@@ -74,21 +74,20 @@ void set_led(byte status)
 
 // 处理BLYNK的事件程序，只能包含在此，这种用法可能问题
 #include "H2H_blynk.h"
-
+// 处理BLYNK的事件程序 
 
 void setup()
-{
-  
+{  
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
   Serial.println("Fucking for connections...");
   Blynk.setDeviceName("MINGUANG_H2");
   Blynk.begin(auth);
   set_led(HWSGTxD_OK);
-  timer_2H.setInterval(1000L, H2HTimerEvent);
 
-  // Clear the terminal content
-  terminal.clear();
+  HWSG2H.Begin(1200);
+  timer_2H.setInterval(1000L, H2HTimerEvent);  
+  terminal.clear();// Clear the terminal content
   // This will print Blynk Software version to the Terminal Widget when
   // your hardware gets connected to Blynk Server
   terminal.println(F("Blynk v" BLYNK_VERSION ": Device started"));

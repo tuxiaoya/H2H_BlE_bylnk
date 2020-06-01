@@ -216,8 +216,17 @@ void H2HTimerEvent()
 
 #endif
     }
-    Blynk.virtualWrite(VirPort_ObjTemp, SecTick_Tem.ObjTemp);
-    Blynk.virtualWrite(VirPort_AmbTemp, SecTick_Tem.AmbTemp);
+    if (SecTick_Tem.Temp_State == HWSG_TEM_OK)
+    {
+        Blynk.virtualWrite(VirPort_ObjTemp, SecTick_Tem.ObjTemp);
+        Blynk.virtualWrite(VirPort_AmbTemp, SecTick_Tem.AmbTemp);
+    }
+    else{
+        terminal.clear();
+        terminal.println("GetHWSG2_Realtime Err!---" SecTick_Tem.Temp_State);
+        // Ensure everything is sent
+        terminal.flush();
+    }
 }
 
 #endif
