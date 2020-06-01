@@ -222,7 +222,7 @@ void H2HTimerEvent()
         else
         {
             terminal.clear();
-            terminal.println("GetHWSG2_Realtime Err!---" SecTick_Tem.Temp_State);
+            terminal.println("GetHWSG2_Realtime Err!---");
             // Ensure everything is sent
             terminal.flush();
         }
