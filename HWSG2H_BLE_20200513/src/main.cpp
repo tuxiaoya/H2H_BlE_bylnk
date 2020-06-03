@@ -61,8 +61,10 @@ BlynkTimer timer_2H;
 MinGuang_HWSH2 HWSG2H(0, 4, &HWSG_Serial); // 
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 
-HWSG2_Parameters_Str Working_Par ;
+HWSG2_Parameters_Str Working_Par;
+HWSG2_Online_Uartframe SecTick_uartf;
 HWSG2_Online_Temp SecTick_Tem;
+
 time_t H2Htime;
 // Attach virtual serial terminal to Virtual Pin VirPort_Terminal
 

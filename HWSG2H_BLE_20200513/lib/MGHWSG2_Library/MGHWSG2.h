@@ -16,14 +16,14 @@
 #define _HWSG_SETPAR_CMD0 0xE0
 #define _HWSG_RESET_CMD0  0xF0
 // 取温度 uart 返回状态
-#define HWSG_UART_OK 0
-#define HWSG_UART_TIMEOUT 1
-#define HWSG_UART_BADID 2
-#define HWSG_UART_BADPACKET 3
+#define HWSG_UART_OK 1
+#define HWSG_UART_TIMEOUT 2
+#define HWSG_UART_BADID 3
+#define HWSG_UART_BADPACKET 4
 // 取温度 TEM 返回状态
-#define HWSG_TEM_OK 1
-#define HWSG_TEM_illegal 0
-#define HWSG_TEM_simulateTem 2
+#define HWSG_TEM_OK 5
+#define HWSG_TEM_illegal 6
+#define HWSG_TEM_simulateTem 7
 
 
 #define HWSG2_uart_timeout 1000 //  uart_timeout   1000 ms
@@ -33,6 +33,8 @@
 #define HWSG2H_MEMSIZE 4032
 #define HWSG2H_READMEM_baudrate 2400 //      baudrate   1200 when use as online
 #define HWSG2H_dataNo 4000
+
+
 
 enum HWSG2_TYPE
 { //  枚举定义仪器类型
@@ -49,20 +51,23 @@ struct HWSG2H_MEM_STR // 4032 tem data
         time_t timeStamp;
 };
 
-struct HWSG2_Online_Temp
-{
-    uint16_t ObjTemp;  //  目标温度
-    uint16_t AmbTemp;  //  环境温度
-    uint8_t Temp_State; //   0xFF超时无响应  0x00正常 0xFE异常数据   HWSG 取温度 uart 返回状态
-    time_t  timeStamp;
-};                   //HWSG online串口数据 数值结构体
-
 struct HWSG2_Online_Uartframe
 {
     //  uint8_t HwSG_RX_head;   //  0xc0 接受的帧头
     uint8_t HwSG_RX_data[9]; //  帧头+ 8帧BYTE数据
     uint8_t RX_state;         // 0xFF超时无响应  0x00正常 0xFE异常数据   HWSG 取温度 uart 返回状态
 } ;                        //HWSGonline串口数据接收队列结构体
+
+struct HWSG2_Online_Temp
+{
+    
+    uint16_t ObjTemp;  //  目标温度
+    uint16_t AmbTemp;  //  环境温度
+    uint8_t Temp_State; //   0xFF超时无响应  0x00正常 0xFE异常数据   HWSG 取温度 uart 返回状态
+    time_t  timeStamp;
+};                   //HWSG online串口数据 数值结构体
+
+
 
 struct HWSG2_Parameters_Str // HWSG2H 设定数据结构体   字节
 {
@@ -170,7 +175,7 @@ public:
     //  公有方法  boolean MinGuang_HWSH2::RXD_ParOK_16Parameters(uint8_t HWSGAddress =  0)
     // 构造函数    strcuct function
     MinGuang_HWSH2(uint8_t HWSGAddress, uint8_t Type, HardwareSerial *HardwareSerialport);
-    boolean Begin(uint32_t baudrate);
+    void Begin(uint32_t baudrate);
     HWSG2_Online_Temp GetHWSG2_RealtimeTemp(uint8_t HWSGAddress);                                                    //default  no  is  0  // 读取温度+ 环境温度 手持同样
     boolean Set_HWSG2_parameters(uint8_t HWSGAddress, HWSG2_Parameters_Str Par_default);                    // 设置参数
     HWSG2_Parameters_Str Get_HWSG2_parameters(uint8_t HWSGAddress);                 // get 参数

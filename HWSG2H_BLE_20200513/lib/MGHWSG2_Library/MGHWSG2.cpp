@@ -1,19 +1,19 @@
 
 #include "MGHWSG2.h"
 
-
 #define SERIAL_WRITE(...) _h2Serial->write(__VA_ARGS__)
+
+#define Uart_DEBUG
 
 MinGuang_HWSH2::MinGuang_HWSH2(uint8_t HWSGAddress, uint8_t Type, HardwareSerial *HardwareSerialport)
 {
     _Uart_ID = HWSGAddress;
     _Type = Type; //  ¸ßÎÂ  ÖÐ  µÍÎÂ
-
     _h2Serial = HardwareSerialport;
     _H2Stream = _h2Serial;
 }
 
-boolean MinGuang_HWSH2::Begin(uint32_t baudrate)
+void MinGuang_HWSH2::Begin(uint32_t baudrate)
 {
     if (_h2Serial)
         _h2Serial->begin(baudrate);
@@ -21,69 +21,90 @@ boolean MinGuang_HWSH2::Begin(uint32_t baudrate)
 
 HWSG2_Online_Temp MinGuang_HWSH2::GetHWSG2_RealtimeTemp(uint8_t HWSGAddress)
 {
-    
-    #ifdef H2H_BLE_DEBUG  //Ä£ÄâËæ»úÎÂ¶È
-        HWSG2_Online_Temp simulateTem;
-        simulateTem.ObjTemp = 888+ random(40);
-        simulateTem.AmbTemp = 20+ random(4);
-        simulateTem.Temp_State = HWSG_TEM_simulateTem;
-        simulateTem.timeStamp = now();
-        return simulateTem;
-    #else       // ÕæÊµ×´Ì¬
-    HWSG2_Online_Uartframe Huartf;
     HWSG2_Online_Temp HTem;
-    TXD_GETTEM_Handshake(HWSGAddress); //·¢Á½¸öÎÕÊÖ  0-15+0xC0
-    Huartf = RXD_TEM_Frame(HWSGAddress); // µÈ´ý½ÓÊÜuartÊý¾ÝÖ¡  µ½ huf                   
-    HTem = HWSGUART_Transto_Temp(Huartf); // °ÑÊý¾ÝÖ¡×ª»»Îª ÎÂ¶È+»·¾³ÎÂ¶È+Êý¾Ý×´Ì¬  ·µ»Ø          
-    return HTem;
-    #endif
+    HWSG2_Online_Uartframe Huartf;
+    TXD_GETTEM_Handshake(HWSGAddress);   //·¢ ÎÕÊÖ  2X 0-15+0xC0
+    Huartf = RXD_TEM_Frame(HWSGAddress); // µÈ´ý½ÓÊÜuartÊý¾ÝÖ¡  µ½ SecTick_uartf
+    if (Huartf.RX_state == HWSG_UART_OK)
+    {
+        HTem = HWSGUART_Transto_Temp(Huartf); // °ÑÊý¾ÝÖ¡×ª»»Îª ÎÂ¶È+»·¾³ÎÂ¶È+Êý¾Ý×´Ì¬  ·µ»Ø
+        return HTem;
+    }
+    else
+    {
+        HTem.Temp_State = HWSG_UART_TIMEOUT;
+        return HTem;
+    }
 }
 
 // #define HWSG_TEM_OK 1
 // #define HWSG_TEM_illegal 0
 // °ÑÊý¾ÝÖ¡×ª»»Îª ÎÂ¶È+»·¾³ÎÂ¶È+Êý¾Ý×´Ì¬
+//  
 HWSG2_Online_Temp MinGuang_HWSH2::HWSGUART_Transto_Temp(HWSG2_Online_Uartframe huf)
 {
     HWSG2_Online_Temp ht;
     uint16_t h0, h1, h2, h3; // ho is  low byte of frame
-    h0 = huf.HwSG_RX_data[1] >> 4;
-    h1 = huf.HwSG_RX_data[2] >> 4;
-    h1 = h1 << 4;
-    h2 = huf.HwSG_RX_data[3] >> 4;
-    h2 = h2 << 8; // h2 must be <8 else tem will over 2048 thatis illegal
-    if (h2 >= 8)
+    h0 = huf.HwSG_RX_data[1] & 0xf; //È¡µÍËÄÎ»
+    h1 = huf.HwSG_RX_data[2] & 0xf;
+    h1 = h1*16;
+    h2 = huf.HwSG_RX_data[3] & 0xf;
+    if (h2 >= 8) // h2 must be <8 else tem will over 2048 thatis illegal
     { // otherwise the tem data is illegal
+#ifdef Uart_DEBUG
+        Serial.print("h2>8 HWSG_TEM_illegal :");        
+        Serial.println(h2);
+#endif
         ht.Temp_State = HWSG_TEM_illegal;
         return ht;
-    }
-    h3 = huf.HwSG_RX_data[4] >> 4; // h3 must be 0
+    }    
+    h2 = h2*256;
+    h3 = huf.HwSG_RX_data[4] & 0xf; // h3 must be 0
     if (h3 != 0)
     { // otherwise the tem data is illegal
+#ifdef Uart_DEBUG
+        Serial.print("h3>0 HWSG_TEM_illegal :");
+        Serial.println(h3);
+#endif
         ht.Temp_State = HWSG_TEM_illegal;
         return ht;
     }
     ht.ObjTemp = h0 + h1 + h2 + h3; // »ñµÃÄ¿±êÎÂ¶È
+#ifdef Uart_DEBUG
+    Serial.print("get right OBJ:");
+    Serial.println(h0 + h1 + h2 + h3);
+#endif
     // »·¾³ÎÂ¶È
-    h0 = huf.HwSG_RX_data[7] >> 4;
-    h1 = huf.HwSG_RX_data[8] >> 4;
-    h1 = h1 << 4;
-    // h1 must be <7  else »·¾³ÎÂ¶È will over 111 ¶È  that is impossible
+    h0 = huf.HwSG_RX_data[7] & 0xf;
+    h1 = huf.HwSG_RX_data[8] & 0xf;
     if (h1 >= 7) // otherwise the tem data is illegal
     {
-        ht.Temp_State = HWSG_TEM_illegal;
+#ifdef Uart_DEBUG
+        Serial.print("h1>7 HWSG_TEM_illegal:");
+        Serial.println(  h1 );
+#endif
+        ht.Temp_State = HWSG_TEM_illegal;// h1 must be <7  else »·¾³ÎÂ¶È will over 111 ¶È  that is impossible
         return ht;
-    }
+    }    
+    h1 = h1 << 4;
     // noa ,the  tem is ok
     ht.AmbTemp = h0 + h1;
+#ifdef Uart_DEBUG
+    Serial.print("get right Amb:");
+    Serial.println(h0 + h1);
+#endif
     ht.Temp_State = HWSG_TEM_OK;
     return ht;
 }
 
-//  ÃüÁîËÍÎÂ¶ÈÊý¾Ý  CN   ·¢ËÍÎÕÊÖ   
+//  ÃüÁîËÍÎÂ¶ÈÊý¾Ý  CN   ·¢ËÍÎÕÊÖ
 void MinGuang_HWSH2::TXD_GETTEM_Handshake(uint8_t HWSGAddress) //  ·¢Á½¸öÎÕÊÖ  0-15+0xC0  Á¬Ðø·¢Á½´Î  ÃüÁîËÍÎÂ¶ÈÊý¾Ý  CN
 {
-    SERIAL_WRITE(HWSGAddress + _HWSG_GETTEM_CMD0); // send 0xc0+ 2 times
-    SERIAL_WRITE(HWSGAddress + _HWSG_GETTEM_CMD0); // send 0xc0+ 2 times
+    while (_h2Serial->read() >= 0)
+    { //Çå¿Õ´®¿Ú»º´æ
+    }
+    SERIAL_WRITE(HWSGAddress + _HWSG_GETTEM_CMD0); // send 0xc0
+    SERIAL_WRITE(HWSGAddress + _HWSG_GETTEM_CMD0); // send 0xc0+
 }
 
 // Èí¸´Î» HWSG2  ÎÞ·µ»Ø
@@ -124,38 +145,40 @@ HWSG2_Online_Uartframe MinGuang_HWSH2::RXD_TEM_Frame(uint8_t HWSGAddress) // ·¢³
     unsigned long TxDstart_Millis;
     HWSG2_Online_Uartframe reading_frame;
     TxDstart_Millis = currentMillis;
+
     while (currentMillis - TxDstart_Millis < HWSG2_uart_timeout) //  ÅÐ¶ÏUART ÊÇ·ñ½ÓÊÜ³¬Ê±
     {
-        currentMillis = millis(); //
-        if (_h2Serial->available())
+        currentMillis = millis();       //
+        if (_h2Serial->available() > 0) //»º³åÇø»¹ÓÐÊý
         {
             inByte = _h2Serial->read(); // get incoming byte:
             reading_frame.HwSG_RX_data[idx] = inByte;
-            if (idx == 0)
-            {
-                if (reading_frame.HwSG_RX_data[0] != HWSGAddress) // Ö¡Í·²»ÏàÍ¬ Âß¼­´íÎó
-                {
-                    reading_frame.RX_state = HWSG_UART_BADID;
-                    return reading_frame;
-                }
-            }
-            else if ((reading_frame.HwSG_RX_data[idx] >> 4) != idx) // ÓÒÒÆ4Î» Ó¦¸ÃµÈÓÚÖ¡Î»ºÅ Î»²Ù×÷ºóÊý¾Ý±äÁËÂð£¿
-            {
-                reading_frame.RX_state = HWSG_UART_BADPACKET; // Ö¡ÄÚÂß¼­´íÎó
-                return reading_frame;
-            }
-            else if (idx == 8)
-            {
-                reading_frame.RX_state = HWSG_UART_OK; // Ö¡Êý¾ÝÕý³£
-                return reading_frame;
-            }
-            inByte++;
+            idx++;
+#ifdef Uart_DEBUG
+            Serial.print(idx);
+            Serial.print(":0x");
+            Serial.println(inByte,HEX);
+#endif
+        }
+        if (idx == 9) //  ½ÓÊÜµ½9Ö¡Êý¾Ý Õý³£
+        {
+#ifdef Uart_DEBUG
+            Serial.print("HWSG_UART_OK:");
+            Serial.print(idx);
+#endif
+            reading_frame.RX_state = HWSG_UART_OK; // Ö¡Êý¾ÝÕý³£
+            return reading_frame;
         }
     }
-    // Ö¡Êý¾Ý³¬Ê±
+
+#ifdef Uart_DEBUG
+    Serial.print("HWSG_UART_TIMEOUT:");
+    Serial.print(idx);
+#endif
     reading_frame.RX_state = HWSG_UART_TIMEOUT;
     return reading_frame;
 }
+
 // ·¢³ö D0+ ºó µÈ´ý½ÓÊÜ D0+16Ö¡byte Parameters
 HWSG2_Parameters_Str MinGuang_HWSH2::RXD_Parameters_HWSG(uint8_t HWSGAddress = 0)
 {
@@ -169,14 +192,56 @@ boolean MinGuang_HWSH2::RXD_ParOK_16Parameters(uint8_t HWSGAddress = 0)
 HWSG2_Parameters_Str MinGuang_HWSH2::Get_HWSG2_parameters(uint8_t HWSGAddress) // get ²ÎÊý
 {
 #ifdef H2H_BLE_DEBUG
- return  Parameters_LOW;
+    return Parameters_LOW;
 #endif
 }
 
 //   // ÉèÖÃ²ÎÊý
-boolean MinGuang_HWSH2::Set_HWSG2_parameters(uint8_t HWSGAddress, HWSG2_Parameters_Str Par_default)                  
+boolean MinGuang_HWSH2::Set_HWSG2_parameters(uint8_t HWSGAddress, HWSG2_Parameters_Str Par_default)
 {
 #ifdef H2H_BLE_DEBUG
- return  true;
+    return true;
 #endif
 }
+
+/***************************************************
+if (reading_frame.HwSG_RX_data[0] != _HWSG_GETTEM_CMD0 + HWSGAddress) // Ö¡Í·²»ÏàÍ¬ Âß¼­´íÎó
+{
+    reading_frame.RX_state = reading_frame.HwSG_RX_data[0]; // HWSG_UART_BADID; // return reading_frame;
+}
+
+else if ((reading_frame.HwSG_RX_data[idx] >> 4) != idx) // ÓÒÒÆ4Î» Ó¦¸ÃµÈÓÚÖ¡Î»ºÅ Î»²Ù×÷ºóÊý¾Ý±äÁËÂð£¿
+{
+    reading_frame.RX_state = HWSG_UART_BADPACKET; // Ö¡ÄÚÂß¼­´íÎó
+    return reading_frame;
+}
+else if (idx == 8)
+{
+    reading_frame.RX_state = HWSG_UART_OK; // Ö¡Êý¾ÝÕý³£
+    return reading_frame;
+} // Ö¡Êý¾Ý³¬Ê±
+
+
+    char huart[]="H2Uart Data:";
+    char huart0[3];
+    dtostrf(huf.HwSG_RX_data[0], 2, 0, huart0); 
+    strcat(huart, huart0);
+    dtostrf(huf.HwSG_RX_data[1], 2, 0, huart0);
+    strcat(huart, huart0);
+    dtostrf(huf.HwSG_RX_data[2], 2, 0, huart0);
+    strcat(huart, huart0);
+    dtostrf(huf.HwSG_RX_data[3], 2, 0, huart0);
+    strcat(huart, huart0);
+    dtostrf(huf.HwSG_RX_data[4], 2, 0, huart0);
+    strcat(huart, huart0);
+    dtostrf(huf.HwSG_RX_data[5], 2, 0, huart0);
+    strcat(huart, huart0);
+    dtostrf(huf.HwSG_RX_data[6], 2, 0, huart0);
+    strcat(huart, huart0);
+    dtostrf(huf.HwSG_RX_data[7], 2, 0, huart0);
+    strcat(huart, huart0);
+    dtostrf(huf.HwSG_RX_data[8], 2, 0, huart0);
+    strcat(huart, huart0);
+    strcpy(ht.H2_UartStr, huart); //   ¸´ÖÆ×Ö·û´®  = huart;
+    return ht;
+ ****************************************************/

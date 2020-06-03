@@ -221,10 +221,9 @@ void H2HTimerEvent()
         }
         else
         {
-            terminal.clear();
-            terminal.println("GetHWSG2_Realtime Err!---");
-            // Ensure everything is sent
-            terminal.flush();
+            terminal.clear(); 
+            terminal.println("Uart Err!");
+            terminal.flush(); // Ensure everything is sent
         }
     }
 }
