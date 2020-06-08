@@ -15,6 +15,8 @@
 #define _HWSG_GETPAR_CMD0 0xD0
 #define _HWSG_SETPAR_CMD0 0xE0
 #define _HWSG_RESET_CMD0  0xF0
+
+
 // 取温度 uart 返回状态
 #define HWSG_UART_OK 1
 #define HWSG_UART_TIMEOUT 2
@@ -27,6 +29,7 @@
 
 
 #define HWSG2_uart_timeout 1000 //  uart_timeout   1000 ms
+#define CMD_Send_delay 10 //  uart_timeout   1000 ms
 #define HWSG2_Online_baudrate 1200 //      baudrate   1200 when use as online
 
 //HWSG2H 相关定义
@@ -67,7 +70,25 @@ struct HWSG2_Online_Temp
     time_t  timeStamp;
 };                   //HWSG online串口数据 数值结构体
 
-
+struct H2H_Parameters_Str // HWSG2H 设定数据结构体   字节
+{
+    uint8_t HwSG_Parameters_frame[16];  //  0xc0  原始数据
+                                        //  数据抽象体
+    int8_t HwSGsetup0_radiant;          //  发射率坡度  9.9   -9.9    20%--20%
+    int8_t HwSGsetup1_ID;               //  地址编号 00-99
+    uint8_t HwSGsetup2_DisUpdatePeriod; //  响应时间 秒 0.1-9.9
+    uint8_t HwSGsetup3_DisStayPeriod;   //  保持时间    0.1-9.9
+    uint8_t HwSGsetup4_420mAStartPoint; //  定时记录间隔  1，6，12，18，24，30
+    uint8_t HwSGsetup5_420mAENDtPoint;  //  定时关机时间  分钟  00-59
+    uint8_t HwSGsetup6_AntiBaseLine;    //  最低辐射A值  00-99
+    bool HwSGsetup7_LockBit;            //  仪器编号 通讯编号  0-7
+    uint8_t HwSGsetup8_UartID;          //  测温上限 
+    uint16_t HwSGsetup9_TEMUPLimit;     //  测温下限
+    uint16_t HwSGsetup10_TEMDOWNLimit;  //  平均值互差  10-99
+    uint8_t HwSGsetup11_GapIn1Sec;      //  最大增益限制系数 00-99
+    uint8_t HwSGsetup12_OverSignalline; //  备用
+    uint8_t HwSGsetup13_Backup;         //  
+};
 
 struct HWSG2_Parameters_Str // HWSG2H 设定数据结构体   字节
 {
@@ -197,5 +218,6 @@ protected:
     Stream *_H2Stream;
     HardwareSerial *_h2Serial;
 };
+
 
 #endif

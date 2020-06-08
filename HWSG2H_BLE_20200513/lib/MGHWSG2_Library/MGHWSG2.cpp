@@ -105,20 +105,27 @@ void MinGuang_HWSH2::TXD_GETTEM_Handshake(uint8_t HWSGAddress) //  发两个握手  0
     }
     SERIAL_WRITE(HWSGAddress + _HWSG_GETTEM_CMD0); // send 0xc0
     SERIAL_WRITE(HWSGAddress + _HWSG_GETTEM_CMD0); // send 0xc0+
+    delay(CMD_Send_delay);
 }
 
-// 软复位 HWSG2  无返回
+// 软复位 HWSG2  无返回  只需要一个F0
 void MinGuang_HWSH2::TXD_RESET_HWSG(uint8_t HWSGAddress) //
 {
     SERIAL_WRITE(HWSGAddress + _HWSG_RESET_CMD0);
-    SERIAL_WRITE(HWSGAddress + _HWSG_RESET_CMD0);
+   // SERIAL_WRITE(HWSGAddress + _HWSG_RESET_CMD0);
 }
 
 // 命令HWSG送出工作参数  DN
 void MinGuang_HWSH2::TXD_GETpar_Handshake(uint8_t HWSGAddress)
 {
+    SERIAL_WRITE(HWSGAddress + _HWSG_RESET_CMD0);  // 送参数之前复位一次，保证处于正常状态  delay 500ms
+    delay(500);                                    //
+    while (_h2Serial->read() >= 0)
+    { //清空串口缓存
+    }
     SERIAL_WRITE(HWSGAddress + _HWSG_GETPAR_CMD0); // send 0xD0+0 2 times  to  rev  parameters from  HWSG2C
     SERIAL_WRITE(HWSGAddress + _HWSG_GETPAR_CMD0);
+    delay(CMD_Send_delay);
 }
 
 // 命令HWSG收工作参数
@@ -191,9 +198,47 @@ boolean MinGuang_HWSH2::RXD_ParOK_16Parameters(uint8_t HWSGAddress = 0)
 
 HWSG2_Parameters_Str MinGuang_HWSH2::Get_HWSG2_parameters(uint8_t HWSGAddress) // get 参数
 {
-#ifdef H2H_BLE_DEBUG
-    return Parameters_LOW;
+
+    HWSG2_Parameters_Str H2Par_Str;
+    TXD_GETpar_Handshake( HWSGAddress);
+
+    uint8_t inByte;
+    uint8_t idx = 0;
+    unsigned long currentMillis = millis();
+    unsigned long TxDstart_Millis;
+    TxDstart_Millis = currentMillis;
+
+    while (currentMillis - TxDstart_Millis < HWSG2_uart_timeout) //  判断UART 是否接受超时
+    {
+        currentMillis = millis();       //
+        if (_h2Serial->available() > 0) //缓冲区还有数
+        {
+            inByte = _h2Serial->read(); // get incoming byte:
+            H2Par_Str.HwSG_Parameters_frame[idx] = inByte;
+            idx++;
+#ifdef Uart_DEBUG
+            Serial.print(idx);
+            Serial.print(":0x");
+            Serial.println(inByte, HEX);
 #endif
+        }
+        if (idx == 16) //  加上帧头 D0 共接受到17帧数据0-16
+        {
+#ifdef Uart_DEBUG
+            Serial.print("HWSG_UART_OK:");
+            Serial.print(idx);
+#endif
+            H2Par_Str.HwSGsetup13_Backup = HWSG_UART_OK; // 帧数据正常
+            return H2Par_Str;
+        }
+    }
+
+#ifdef Uart_DEBUG
+    Serial.print("HWSG_UART_TIMEOUT:");
+    Serial.print(idx);
+#endif
+    H2Par_Str.HwSGsetup13_Backup = HWSG_UART_TIMEOUT;
+    return H2Par_Str;
 }
 
 //   // 设置参数
