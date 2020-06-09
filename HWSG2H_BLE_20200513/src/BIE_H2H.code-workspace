@@ -6,6 +6,10 @@
 		{
 			"name": "HWSG2H_BLE_20200513",
 			"path": ".."
+		},
+		{
+			"name": "H2C_wifi_blynk20200608",
+			"path": "..\\..\\..\\..\\..\\Blynk_Minguang\\H2C_wifi_blynk20200608\\H2C_wifi_blynk20200608"
 		}
 	],
 	"settings": {}
