@@ -249,44 +249,39 @@ boolean MinGuang_HWSH2::Set_HWSG2_parameters(uint8_t HWSGAddress, HWSG2_Paramete
 #endif
 }
 
-/***************************************************
-if (reading_frame.HwSG_RX_data[0] != _HWSG_GETTEM_CMD0 + HWSGAddress) // 帧头不相同 逻辑错误
-{
-    reading_frame.RX_state = reading_frame.HwSG_RX_data[0]; // HWSG_UART_BADID; // return reading_frame;
-}
+// 把INT8数据 转换为 HWSG仪器参数使用的怪异十进制 9.9
+uint8_t HexToDec(int8_t D_Hex){
+    uint8_t D_Dec;
+    D_Hex = abs(D_Hex);
+    D_Dec = D_Hex / 10;
+    D_Dec<<4;
+    D_Dec = D_Dec+D_Hex % 10;
+    return D_Dec;
+    }
 
-else if ((reading_frame.HwSG_RX_data[idx] >> 4) != idx) // 右移4位 应该等于帧位号 位操作后数据变了吗？
-{
-    reading_frame.RX_state = HWSG_UART_BADPACKET; // 帧内逻辑错误
-    return reading_frame;
-}
-else if (idx == 8)
-{
-    reading_frame.RX_state = HWSG_UART_OK; // 帧数据正常
-    return reading_frame;
-} // 帧数据超时
-
-
-    char huart[]="H2Uart Data:";
-    char huart0[3];
-    dtostrf(huf.HwSG_RX_data[0], 2, 0, huart0); 
-    strcat(huart, huart0);
-    dtostrf(huf.HwSG_RX_data[1], 2, 0, huart0);
-    strcat(huart, huart0);
-    dtostrf(huf.HwSG_RX_data[2], 2, 0, huart0);
-    strcat(huart, huart0);
-    dtostrf(huf.HwSG_RX_data[3], 2, 0, huart0);
-    strcat(huart, huart0);
-    dtostrf(huf.HwSG_RX_data[4], 2, 0, huart0);
-    strcat(huart, huart0);
-    dtostrf(huf.HwSG_RX_data[5], 2, 0, huart0);
-    strcat(huart, huart0);
-    dtostrf(huf.HwSG_RX_data[6], 2, 0, huart0);
-    strcat(huart, huart0);
-    dtostrf(huf.HwSG_RX_data[7], 2, 0, huart0);
-    strcat(huart, huart0);
-    dtostrf(huf.HwSG_RX_data[8], 2, 0, huart0);
-    strcat(huart, huart0);
-    strcpy(ht.H2_UartStr, huart); //   复制字符串  = huart;
-    return ht;
- ****************************************************/
+//    转换2H参数结构数据   *HWSG仪器参数使用的是十进制
+    H2H_Parameters_Str Transform_Parameters_HWSG(H2H_Parameters_Str InPar)
+    {
+        H2H_Parameters_Str OutPar;
+        // 默认参数符号位全部为正  ： 0参数为正  1为负
+        OutPar.HwSG_Parameters_frame[15] = 0;
+        //  HwSGsetup0_radiant; //  发射率坡度  99   -99  对应 19.8%   -19.8%
+        OutPar.HwSG_Parameters_frame[0] = HexToDec(InPar.HwSGsetup0_radiant);
+        if (InPar.HwSGsetup0_radiant < 0)
+        {                                                  //  如果为负值 置对应的 第F#par 符号位 1
+            OutPar.HwSG_Parameters_frame[15] |= B00000001; //D0
+        }
+        OutPar.HwSG_Parameters_frame[1] = HexToDec(InPar.HwSGsetup1_PlaceID) ;  // 地址编号 00-99
+        OutPar.HwSG_Parameters_frame[2] = HexToDec(InPar.HwSGsetup2_ResponseTime);   // 响应时间 1-99  对应0.1-9.9秒
+        OutPar.HwSG_Parameters_frame[3] = HexToDec(InPar.HwSGsetup3_DisStayPeriod);   // 保持时间    0.1-9.9 0-99  对应0.0-9.9秒
+        OutPar.HwSG_Parameters_frame[4] = HexToDec(InPar.HwSGsetup4_RecordPeriod); // 定时记录间隔  1，6，12，18，24，30
+        OutPar.HwSG_Parameters_frame[5] = HexToDec(InPar.HwSGsetup5_ShutDownPeriod); // 定时关机时间  分钟  00-59
+        OutPar.HwSG_Parameters_frame[6] = HexToDec(InPar.HwSGsetup6_ALimit);    //  min A 0-99
+        OutPar.HwSG_Parameters_frame[7] = InPar.HwSGsetup7_UartID;          //  0-7 ID编号                                                          // 锁键
+        OutPar.HwSG_Parameters_frame[8] = HexToDec(InPar.HwSGsetup8_TEMUPLimit / 100);    // 测温上限百位
+        OutPar.HwSG_Parameters_frame[9] = HexToDec(InPar.HwSGsetup8_TEMUPLimit % 100);     // 测温上限十位
+        OutPar.HwSG_Parameters_frame[10] =HexToDec(InPar.HwSGsetup9_TEMDOWNLimit / 100);   // 测温下限百位
+        OutPar.HwSG_Parameters_frame[11] =HexToDec(InPar.HwSGsetup9_TEMDOWNLimit% 100);    // 测温下限10位
+        OutPar.HwSG_Parameters_frame[12] =HexToDec(InPar.HwSGsetup10_GapInAverage);        // 1s内 平均值互查限 通常为20
+        OutPar.HwSG_Parameters_frame[13] =HexToDec(InPar.HwSGsetup11_GainLimit);          // 最大增益限制系数 00-99 
+    }

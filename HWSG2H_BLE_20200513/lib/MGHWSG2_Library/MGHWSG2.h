@@ -75,19 +75,19 @@ struct H2H_Parameters_Str // HWSG2H 设定数据结构体   字节
     uint8_t HwSG_Parameters_frame[16];  //  0xc0  原始数据
                                         //  数据抽象体
     int8_t HwSGsetup0_radiant;          //  发射率坡度  9.9   -9.9    20%--20%
-    int8_t HwSGsetup1_ID;               //  地址编号 00-99
-    uint8_t HwSGsetup2_DisUpdatePeriod; //  响应时间 秒 0.1-9.9
+    int8_t HwSGsetup1_PlaceID;          //  地址编号 00-99
+    uint8_t HwSGsetup2_ResponseTime;    //  响应时间 秒 0.1-9.9
     uint8_t HwSGsetup3_DisStayPeriod;   //  保持时间    0.1-9.9
-    uint8_t HwSGsetup4_420mAStartPoint; //  定时记录间隔  1，6，12，18，24，30
-    uint8_t HwSGsetup5_420mAENDtPoint;  //  定时关机时间  分钟  00-59
-    uint8_t HwSGsetup6_AntiBaseLine;    //  最低辐射A值  00-99
-    bool HwSGsetup7_LockBit;            //  仪器编号 通讯编号  0-7
-    uint8_t HwSGsetup8_UartID;          //  测温上限 
-    uint16_t HwSGsetup9_TEMUPLimit;     //  测温下限
-    uint16_t HwSGsetup10_TEMDOWNLimit;  //  平均值互差  10-99
-    uint8_t HwSGsetup11_GapIn1Sec;      //  最大增益限制系数 00-99
-    uint8_t HwSGsetup12_OverSignalline; //  备用
-    uint8_t HwSGsetup13_Backup;         //  
+    uint8_t HwSGsetup4_RecordPeriod;    //  定时记录间隔  1，6，12，18，24，30
+    uint8_t HwSGsetup5_ShutDownPeriod;  //  定时关机时间  分钟  00-59
+    uint8_t HwSGsetup6_ALimit;          //  最低辐射A值  00-99
+    //  bool    HwSGsetup7_LockBit;            //  lockBit 
+    uint8_t  HwSGsetup7_UartID;             //  通讯编号  0-7
+    uint16_t HwSGsetup8_TEMUPLimit;     //  测温上限
+    uint16_t HwSGsetup9_TEMDOWNLimit;  //  测温下限
+    uint8_t HwSGsetup10_GapInAverage;  //  平均值互差  10-99
+    uint8_t HwSGsetup11_GainLimit; //  最大增益限制系数 00-99
+    uint8_t HwSGsetup12_Backup;         //  备用
 };
 
 struct HWSG2_Parameters_Str // HWSG2H 设定数据结构体   字节
@@ -109,24 +109,6 @@ struct HWSG2_Parameters_Str // HWSG2H 设定数据结构体   字节
     uint8_t HwSGsetup12_OverSignalline; //
     uint8_t HwSGsetup13_Backup;          //
 } ;                                    //HWSG  参数   结构体
-// 默认HWSG2 参数结构体赋值
-//HWSG2_Parameters_Str Parameters2H_default ;
-
-// = {
-//     HwSGsetup0_radiant : 0,
-//     HwSGsetup1_420mARate : 0,       //  4-20MA 微调  9.9%   -9.9%
-//     HwSGsetup2_DisSperiod : 0,      //  0.1-9.9
-//     HwSGsetup3_420mAStartPoint : 3, //  X100
-//     HwSGsetup4_420mAENDtPoint : 8,  //   X100
-//     HwSGsetup5_AntiBaseLine : 20,   //  20-40
-//     HwSGsetup6_LockBit : false,     //  true or  faule
-//     HwSGsetup7_UartID:0,              //  0-F
-//     HwSGsetup8_TEMUPLimit:10,              //   X100
-//     HwSGsetup9_TEMDOWNLimit:2,            //   X100
-//     HwSGsetup10_GapIn1Sec:5,              //  Gap limit of thermometricbase in one second
-//     HwSGsetup11_OverSignalline:5, //
-//     HwSGsetup12_Backup:0,
-// };
 
 // 默认HWSG2 高温参数
 const HWSG2_Parameters_Str Parameters_HIGH = {
