@@ -90,7 +90,7 @@ struct H2H_Parameters_Str // HWSG2H 设定数据结构体   字节
     uint8_t HwSGsetup12_Backup;         //  备用
 };
 
-struct HWSG2_Parameters_Str // HWSG2H 设定数据结构体   字节
+struct HWSG2_Parameters_Str // HWSG2 设定数据结构体   字节
 {
     uint8_t HwSG_Parameters_frame[16];  //  0xc0  原始数据
                                         //  数据抽象体
@@ -146,24 +146,7 @@ const HWSG2_Parameters_Str Parameters_MID = {
     HwSGsetup12_OverSignalline : 5, //
     HwSGsetup13_Backup : 0,
 };
-// 默认HWSG2 低温参数
-const HWSG2_Parameters_Str Parameters_LOW = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, //HwSG_Parameters_frame[16]:{},
-    HwSGsetup0_radiant : 0,
-    HwSGsetup1_420mARate : 0,       //  4-20MA 微调  9.9%   -9.9%
-    HwSGsetup2_DisUpdatePeriod : 2, //  0.1-9.9
-    HwSGsetup3_DisStayPeriod  : 2,
-    HwSGsetup4_420mAStartPoint : 1, //  X100
-    HwSGsetup5_420mAENDtPoint : 3,  //   X100
-    HwSGsetup6_AntiBaseLine : 20,   //  20-40
-    HwSGsetup7_LockBit : false,     //  true or  faule
-    HwSGsetup8_UartID : 0,          //  0-F
-    HwSGsetup9_TEMUPLimit : 3,      //   X100
-    HwSGsetup10_TEMDOWNLimit : 1,    //   X100
-    HwSGsetup11_GapIn1Sec : 5,      //  Gap limit of thermometricbase in one second
-    HwSGsetup12_OverSignalline : 5, //
-    HwSGsetup13_Backup : 0,
-};
+void Transform_Parameters_INT(H2H_Parameters_Str *InPar);
 
 class MinGuang_HWSH2 // HWSG2   仪器类 MinGuang_HWSH2
 {
@@ -175,6 +158,7 @@ public:
     String _HWSG_user;       //  使用单位
     uint64_t _HWSG_ESP32Mac; //getEfuseMac() 获取eps32芯片mac地址（6byte），该地址也可以用作芯片ID；
     HWSG2_Online_Temp  _LastMeaSure_TEM; //  last temerrature
+    H2H_Parameters_Str _H2HPar;
     //  公有方法  boolean MinGuang_HWSH2::RXD_ParOK_16Parameters(uint8_t HWSGAddress =  0)
     // 构造函数    strcuct function
     MinGuang_HWSH2(uint8_t HWSGAddress, uint8_t Type, HardwareSerial *HardwareSerialport);
@@ -182,10 +166,10 @@ public:
     HWSG2_Online_Temp GetHWSG2_RealtimeTemp(uint8_t HWSGAddress);                                                    //default  no  is  0  // 读取温度+ 环境温度 手持同样
     boolean Set_HWSG2_parameters(uint8_t HWSGAddress, HWSG2_Parameters_Str Par_default);                    // 设置参数
     HWSG2_Parameters_Str Get_HWSG2_parameters(uint8_t HWSGAddress);                 // get 参数
-
-private: //  成员变量  小写加下划线  私有方法  + 私有 RXD_TemDataFrame
-    HWSG2_Online_Temp HWSGUART_Transto_Temp(HWSG2_Online_Uartframe huf);
+    H2H_Parameters_Str   Get_HWSG2H_parameters(uint8_t HWSGAddress);
     
+    private : //  成员变量  小写加下划线  私有方法  + 私有 RXD_TemDataFrame
+    HWSG2_Online_Temp HWSGUART_Transto_Temp(HWSG2_Online_Uartframe huf);
     void TXD_GETTEM_Handshake(uint8_t HWSGAddress);               // 0-15+0xC0  连续发两次  命令送温度数据  CN
     void TXD_RESET_HWSG(uint8_t HWSGAddress);                     // 0-15+0xF0  连续发两次  命令reset HWSG FN
     void TXD_GETpar_Handshake(uint8_t HWSGAddress);               // 连续发两次  命令HWSG送出工作参数  DN
@@ -193,8 +177,8 @@ private: //  成员变量  小写加下划线  私有方法  + 私有 RXD_TemDataFrame
     HWSG2_Online_Uartframe RXD_TEM_Frame(uint8_t HWSGAddress);    // 发出 C0+ 后 等待接受 C0+8帧byte温度数据
     HWSG2_Parameters_Str RXD_Parameters_HWSG(uint8_t HWSGAddress); // 发出 D0+ 后 等待接受 D0+16帧byte Parameters
     boolean RXD_ParOK_16Parameters(uint8_t HWSGAddress);           // 发出 E0+ 后 接受到 E0+  正确后送 16帧byte Parameters
-
-    //
+      // void Transform_Parameters_INT(H2H_Parameters_Str *InPar);
+    H2H_Parameters_Str  Transform_Parameters_HWSG(H2H_Parameters_Str InPar);
 
 protected:
     Stream *_H2Stream;

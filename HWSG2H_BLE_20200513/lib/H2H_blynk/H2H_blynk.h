@@ -2,6 +2,8 @@
 #ifndef H2H_blynk_H
 #define H2H_blynk_H
 
+
+
 // blynk V引脚 定义
 #define VirPort_ONbutton V0
 #define VirPort_Terminal V1
@@ -10,36 +12,37 @@
 #define VirPort_GETParameters V10
 #define VirPort_SETParameters V11
 #define VirPort_ParHwSG_radiant V20         //  发射率坡度  9.9   -9.9    20%--20%
-#define VirPort_ParHwSG_420mARate V21       //  4-20MA 微调  9.9%   -9.9%
-#define VirPort_ParHwSG_4mAStartPoint V22   //  X100
-#define VirPort_ParHwSG_20mAENDtPoint V23   //   X100
-#define VirPort_ParHwSG_TEMUPLimit V24      //   X100
-#define VirPort_ParHwSG_TEMDOWNLimit V25    //   X100
-#define VirPort_ParHwSG_DisUpdatePeriod V26 //
-#define VirPort_ParHwSG_DisStayPeriod V27   //  0.1-9.9
-#define VirPort_ParHwSG_AntiBaseLine V28    //  20-40
-#define VirPort_ParHwSG_OverSignalline V29  //
-#define VirPort_ParHwSG_GapIn1Sec V30       //  Gap limit of thermometricbase in one second
-#define VirPort_ParHwSG_UartID V31          //  0-F// bool HwSGsetup6_LockBit;            //  true or  faule
+#define VirPort_ParHwSG_PlaceID V21         //  地址编号 00-99
+#define VirPort_ParHwSG_ResponseTime V22   //  响应时间 秒 0.1-9.9
+#define VirPort_ParHwSG_DisStayPeriod V23  //  保持时间    0.1-9.9
+#define VirPort_ParHwSG_RecordPeriod V24   //  定时记录间隔  1，6，12，18，24，30
+#define VirPort_ParHwSG_ShutDownPeriod V25 //  定时关机时间  分钟  00-59
+#define VirPort_ParHwSG_ALimit V26         //  最低辐射A值  00-99
+#define VirPort_ParHwSG_UartID V27         //  通讯编号  0-7
+#define VirPort_ParHwSG_TEMUPLimit V28     // 测温上限
+#define VirPort_ParHwSG_TEMDOWNLimit V29   // 测温下限
+#define VirPort_ParHwSG_GapInAverage V30   //  平均值互差  10-99
+#define VirPort_ParHwSG_GainLimit V31      //  最大增益限制系数 00-99
 
 WidgetTerminal terminal(VirPort_Terminal);
 // blynk button  GETParameters
 BLYNK_WRITE(VirPort_GETParameters)
 {
     // int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
-    Working_Par = HWSG2H.Get_HWSG2_parameters(DEFAULT_Adr);
-    Blynk.virtualWrite(VirPort_ParHwSG_radiant, Working_Par.HwSGsetup0_radiant);
-    Blynk.virtualWrite(VirPort_ParHwSG_420mARate, Working_Par.HwSGsetup1_420mARate);
-    Blynk.virtualWrite(VirPort_ParHwSG_4mAStartPoint, Working_Par.HwSGsetup4_420mAStartPoint);
-    Blynk.virtualWrite(VirPort_ParHwSG_20mAENDtPoint, Working_Par.HwSGsetup5_420mAENDtPoint);
-    Blynk.virtualWrite(VirPort_ParHwSG_TEMUPLimit, Working_Par.HwSGsetup9_TEMUPLimit);
-    Blynk.virtualWrite(VirPort_ParHwSG_TEMDOWNLimit, Working_Par.HwSGsetup10_TEMDOWNLimit);
-    Blynk.virtualWrite(VirPort_ParHwSG_DisUpdatePeriod, Working_Par.HwSGsetup2_DisUpdatePeriod);
-    Blynk.virtualWrite(VirPort_ParHwSG_DisStayPeriod, Working_Par.HwSGsetup3_DisStayPeriod);
-    Blynk.virtualWrite(VirPort_ParHwSG_AntiBaseLine, Working_Par.HwSGsetup6_AntiBaseLine);
-    Blynk.virtualWrite(VirPort_ParHwSG_OverSignalline, Working_Par.HwSGsetup12_OverSignalline);
-    Blynk.virtualWrite(VirPort_ParHwSG_GapIn1Sec, Working_Par.HwSGsetup11_GapIn1Sec);
-    Blynk.virtualWrite(VirPort_ParHwSG_UartID, Working_Par.HwSGsetup8_UartID);
+    H2H_Working_Par = HWSG2H.Get_HWSG2H_parameters(DEFAULT_Adr);
+    Transform_Parameters_INT(&H2H_Working_Par);
+    Blynk.virtualWrite(VirPort_ParHwSG_radiant, H2H_Working_Par.HwSGsetup0_radiant);
+    Blynk.virtualWrite(VirPort_ParHwSG_PlaceID, H2H_Working_Par.HwSGsetup1_PlaceID);
+    Blynk.virtualWrite(VirPort_ParHwSG_ResponseTime, H2H_Working_Par.HwSGsetup2_ResponseTime);
+    Blynk.virtualWrite(VirPort_ParHwSG_DisStayPeriod, H2H_Working_Par.HwSGsetup3_DisStayPeriod);
+    Blynk.virtualWrite(VirPort_ParHwSG_RecordPeriod, H2H_Working_Par.HwSGsetup4_RecordPeriod);
+    Blynk.virtualWrite(VirPort_ParHwSG_ShutDownPeriod, H2H_Working_Par.HwSGsetup5_ShutDownPeriod);
+    Blynk.virtualWrite(VirPort_ParHwSG_ALimit, H2H_Working_Par.HwSGsetup6_ALimit);
+    Blynk.virtualWrite(VirPort_ParHwSG_UartID, H2H_Working_Par.HwSGsetup7_UartID);
+    Blynk.virtualWrite(VirPort_ParHwSG_TEMUPLimit, H2H_Working_Par.HwSGsetup8_TEMUPLimit);
+    Blynk.virtualWrite(VirPort_ParHwSG_TEMDOWNLimit, H2H_Working_Par.HwSGsetup9_TEMDOWNLimit);
+    Blynk.virtualWrite(VirPort_ParHwSG_GapInAverage, H2H_Working_Par.HwSGsetup10_GapInAverage);
+    Blynk.virtualWrite(VirPort_ParHwSG_GainLimit, H2H_Working_Par.HwSGsetup11_GainLimit);
     terminal.clear();
     terminal.println(F("Get parameters OK!"));
 }
