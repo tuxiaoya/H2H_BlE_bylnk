@@ -6,11 +6,13 @@
 
 // blynk V引脚 定义
 #define VirPort_ONbutton V0
-#define VirPort_Terminal V1
+// #define VirPort_LCD V1
+#define VirPort_Terminal V2
 #define VirPort_ObjTemp V5
 #define VirPort_AmbTemp V6
 #define VirPort_GETParameters V10
 #define VirPort_SETParameters V11
+#define VirPort_ParTerminal   V19
 #define VirPort_ParHwSG_radiant V20         //  发射率坡度  9.9   -9.9    20%--20%
 #define VirPort_ParHwSG_PlaceID V21         //  地址编号 00-99
 #define VirPort_ParHwSG_ResponseTime V22   //  响应时间 秒 0.1-9.9
@@ -25,9 +27,12 @@
 #define VirPort_ParHwSG_GainLimit V31      //  最大增益限制系数 00-99
 
 WidgetTerminal terminal(VirPort_Terminal);
+WidgetTerminal ParTerminal(VirPort_ParTerminal);
+
 // blynk button  GETParameters
 BLYNK_WRITE(VirPort_GETParameters)
 {
+    HWSGTxD_OK = false; // close sending uart
     // int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
     H2H_Working_Par = HWSG2H.Get_HWSG2H_parameters(DEFAULT_Adr);
     Transform_Parameters_INT(&H2H_Working_Par);
@@ -43,19 +48,24 @@ BLYNK_WRITE(VirPort_GETParameters)
     Blynk.virtualWrite(VirPort_ParHwSG_TEMDOWNLimit, H2H_Working_Par.HwSGsetup9_TEMDOWNLimit);
     Blynk.virtualWrite(VirPort_ParHwSG_GapInAverage, H2H_Working_Par.HwSGsetup10_GapInAverage);
     Blynk.virtualWrite(VirPort_ParHwSG_GainLimit, H2H_Working_Par.HwSGsetup11_GainLimit);
-    terminal.clear();
-    terminal.println(F("Get parameters OK!"));
+    ParTerminal.clear();
+    ParTerminal.println(F("Get parameters OK!"));
+    HWSGTxD_OK = true; // open sending uart
 }
 
 // blynk button  SETParameters
 BLYNK_WRITE(VirPort_SETParameters)
 {
     HWSGTxD_OK = false; // close sending uart
-
-    if (HWSG2H.Set_HWSG2_parameters(DEFAULT_Adr, Working_Par)) //  如果发送参数成功
+    ParTerminal.clear();
+    if (HWSG2H.Set_H2H_parameters(DEFAULT_Adr, H2H_Working_Par)) //  如果发送参数成功
     {
-        terminal.println(F("Set parameters!"));
+        ParTerminal.println(F("参数发送成功!"));
     }
+    else{
+        ParTerminal.println(F("参数发送失败!!"));
+        ParTerminal.println(F("请5秒后再次尝试!"));
+    } 
     HWSGTxD_OK = true; // open sending uart
 }
 
@@ -73,23 +83,22 @@ BLYNK_WRITE(VirPort_ONbutton)
 // blynk button //  发射率坡度   20%--20%
 BLYNK_WRITE(VirPort_ParHwSG_radiant)
 {
-    int8_t pinValue = param.asInt(); // assigning incoming value from Vpin  to a variable
-    if (pinValue > 20)
-        pinValue = 20;
-    if (pinValue < -20)
-        pinValue = -20;
-    Working_Par.HwSGsetup0_radiant = pinValue;
+    float RadiantValue = param.asFloat(); // assigning incoming value from Vpin  to a variable
+    if (RadiantValue > 19.8)
+        RadiantValue = 19.8;
+    if (RadiantValue < -19.8)
+        RadiantValue = -19.8;
+    H2H_Working_Par.HwSGsetup0_radiant = RadiantValue;
 }
-
-// VirPort_ParHwSG_420mARate V21   //  4-20MA 微调  9.9%   -9.9%
-BLYNK_WRITE(VirPort_ParHwSG_420mARate)
+// VirPort_ParHwSG_PlaceID  //  //  地址编号 00-99
+BLYNK_WRITE(VirPort_ParHwSG_PlaceID)
 {
-    int8_t pinValue = param.asInt(); // assigning incoming value from Vpin  to a variable
-    if (pinValue > 99)
-        pinValue = 99;
-    if (pinValue < -99)
-        pinValue = -99;
-    Working_Par.HwSGsetup1_420mARate = pinValue;
+    int8_t PlaceID = param.asInt(); // assigning incoming value from Vpin  to a variable
+    if (PlaceID > 90)
+        PlaceID = 90;
+    if (PlaceID < 0)
+        PlaceID = 0;  
+    H2H_Working_Par.HwSGsetup1_PlaceID = PlaceID;
 }
 
 // #define VirPort_ParHwSG_4mAStartPoint V22 //  X100

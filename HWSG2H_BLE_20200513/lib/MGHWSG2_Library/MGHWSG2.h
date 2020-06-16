@@ -74,10 +74,10 @@ struct H2H_Parameters_Str // HWSG2H 设定数据结构体   字节
 {
     uint8_t HwSG_Parameters_frame[16];  //  0xc0  原始数据
                                         //  数据抽象体
-    int8_t HwSGsetup0_radiant;          //  发射率坡度  9.9   -9.9    20%--20%
+    float HwSGsetup0_radiant;           //  发射率坡度  显示 9.9 -9.9  对应 19.8% -19.8%
     int8_t HwSGsetup1_PlaceID;          //  地址编号 00-99
-    uint8_t HwSGsetup2_ResponseTime;    //  响应时间 秒 0.1-9.9
-    uint8_t HwSGsetup3_DisStayPeriod;   //  保持时间    0.1-9.9
+    float HwSGsetup2_ResponseTime;      //  响应时间 秒 0.1-9.9
+    float HwSGsetup3_DisStayPeriod;     //  保持时间    0.1-9.9
     uint8_t HwSGsetup4_RecordPeriod;    //  定时记录间隔  1，6，12，18，24，30
     uint8_t HwSGsetup5_ShutDownPeriod;  //  定时关机时间  分钟  00-59
     uint8_t HwSGsetup6_ALimit;          //  最低辐射A值  00-99
@@ -94,10 +94,10 @@ struct HWSG2_Parameters_Str // HWSG2 设定数据结构体   字节
 {
     uint8_t HwSG_Parameters_frame[16];  //  0xc0  原始数据
                                         //  数据抽象体
-    int8_t HwSGsetup0_radiant;         //  发射率坡度  9.9   -9.9    20%--20%
-    int8_t HwSGsetup1_420mARate;       //  4-20MA 微调  9.9%   -9.9%
-    uint8_t HwSGsetup2_DisUpdatePeriod;  //  0.1-9.9
-    uint8_t HwSGsetup3_DisStayPeriod;    //  0.1-9.9
+    float HwSGsetup0_radiant;           //  发射率坡度  9.9   -9.9    20%--20%
+    float HwSGsetup1_420mARate;         //  4-20MA 微调  9.9%   -9.9%
+    float HwSGsetup2_DisUpdatePeriod;   //  0.1-9.9
+    float HwSGsetup3_DisStayPeriod;     //  0.1-9.9
     uint8_t HwSGsetup4_420mAStartPoint; //  X100
     uint8_t HwSGsetup5_420mAENDtPoint;  //   X100
     uint8_t HwSGsetup6_AntiBaseLine;    //  20-40
@@ -128,24 +128,7 @@ const HWSG2_Parameters_Str Parameters_HIGH = {
     HwSGsetup12_OverSignalline : 5, //
     HwSGsetup13_Backup : 0,
 };
-// 默认HWSG2 中温参数
-const HWSG2_Parameters_Str Parameters_MID = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, //HwSG_Parameters_frame[16]:{},
-    HwSGsetup0_radiant : 0,
-    HwSGsetup1_420mARate : 0,       //  4-20MA 微调  9.9%   -9.9%
-    HwSGsetup2_DisUpdatePeriod : 2, //  0.1-9.9
-    HwSGsetup3_DisStayPeriod  : 2,
-    HwSGsetup4_420mAStartPoint : 3, //  X100
-    HwSGsetup5_420mAENDtPoint : 8,  //   X100
-    HwSGsetup6_AntiBaseLine : 20,   //  20-40
-    HwSGsetup7_LockBit : false,     //  true or  faule
-    HwSGsetup8_UartID : 0,          //  0-F
-    HwSGsetup9_TEMUPLimit : 7,      //   X100
-    HwSGsetup10_TEMDOWNLimit : 4,    //   X100
-    HwSGsetup11_GapIn1Sec : 5,      //  Gap limit of thermometricbase in one second
-    HwSGsetup12_OverSignalline : 5, //
-    HwSGsetup13_Backup : 0,
-};
+
 void Transform_Parameters_INT(H2H_Parameters_Str *InPar);
 
 class MinGuang_HWSH2 // HWSG2   仪器类 MinGuang_HWSH2
@@ -163,8 +146,8 @@ public:
     // 构造函数    strcuct function
     MinGuang_HWSH2(uint8_t HWSGAddress, uint8_t Type, HardwareSerial *HardwareSerialport);
     void Begin(uint32_t baudrate);
-    HWSG2_Online_Temp GetHWSG2_RealtimeTemp(uint8_t HWSGAddress);                                                    //default  no  is  0  // 读取温度+ 环境温度 手持同样
-    boolean Set_HWSG2_parameters(uint8_t HWSGAddress, HWSG2_Parameters_Str Par_default);                    // 设置参数
+    HWSG2_Online_Temp GetHWSG2_RealtimeTemp(uint8_t HWSGAddress);      //default  no  is  0  // 读取温度+ 环境温度 手持同样
+    boolean Set_H2H_parameters(uint8_t HWSGAddress, H2H_Parameters_Str SetPar);     // 设置2H参数
     HWSG2_Parameters_Str Get_HWSG2_parameters(uint8_t HWSGAddress);                 // get 参数
     H2H_Parameters_Str   Get_HWSG2H_parameters(uint8_t HWSGAddress);
     

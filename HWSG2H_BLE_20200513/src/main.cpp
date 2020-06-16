@@ -59,7 +59,7 @@ HardwareSerial HWSG_Serial(2); //RX2 16  TX2 17
 // You should get Auth Token in the Blynk App. Parameters2H_default
 // Go to the Project Settings (nut icon).
 char auth[] = "d020f28398e74135a0ee9da7215c85b8";
-char ssid[] = "敏光科技3";    // 4楼wifi
+char ssid[] = "敏光科技3";    //  4楼wifi
 char pass[] = "mgkj8190688"; //
 // 武玉柱老师 60.213.28.10  裘老师 116.62.49.166 盛思 blynk.mpython.cn   官方 blynk-cloud.com
 IPAddress WYZ_IP(60,213,28,10);
@@ -111,6 +111,9 @@ void setup()
   // your hardware gets connected to Blynk Server
   terminal.println(F("Blynk v" BLYNK_VERSION ": Device started"));
   terminal.flush();
+  ParTerminal.clear();
+  ParTerminal.println(F("写入参数之前需先读取参数!"));
+  ParTerminal.flush();
 }
 
 void loop()
