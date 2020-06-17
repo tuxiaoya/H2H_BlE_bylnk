@@ -34,8 +34,8 @@ BLYNK_WRITE(VirPort_GETParameters)
 {
     HWSGTxD_OK = false; // close sending uart
     // int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
-    H2H_Working_Par = HWSG2H.Get_HWSG2H_parameters(DEFAULT_Adr);
-    Transform_Parameters_INT(&H2H_Working_Par);
+    H2H_Working_Par = HWSG2H.Get_HWSG2H_parameters(DEFAULT_Adr); //接受参数
+    Transform_Parameters_INT(&H2H_Working_Par);  // 转化参数为人话
     Blynk.virtualWrite(VirPort_ParHwSG_radiant, H2H_Working_Par.HwSGsetup0_radiant);
     Blynk.virtualWrite(VirPort_ParHwSG_PlaceID, H2H_Working_Par.HwSGsetup1_PlaceID);
     Blynk.virtualWrite(VirPort_ParHwSG_ResponseTime, H2H_Working_Par.HwSGsetup2_ResponseTime);
@@ -49,7 +49,8 @@ BLYNK_WRITE(VirPort_GETParameters)
     Blynk.virtualWrite(VirPort_ParHwSG_GapInAverage, H2H_Working_Par.HwSGsetup10_GapInAverage);
     Blynk.virtualWrite(VirPort_ParHwSG_GainLimit, H2H_Working_Par.HwSGsetup11_GainLimit);
     ParTerminal.clear();
-    ParTerminal.println(F("Get parameters OK!"));
+    ParTerminal.println(F("参数接受成功!"));
+    ParTerminal.flush();
     HWSGTxD_OK = true; // open sending uart
 }
 
@@ -61,10 +62,12 @@ BLYNK_WRITE(VirPort_SETParameters)
     if (HWSG2H.Set_H2H_parameters(DEFAULT_Adr, H2H_Working_Par)) //  如果发送参数成功
     {
         ParTerminal.println(F("参数发送成功!"));
+        ParTerminal.flush();
     }
     else{
         ParTerminal.println(F("参数发送失败!!"));
         ParTerminal.println(F("请5秒后再次尝试!"));
+        ParTerminal.flush();
     } 
     HWSGTxD_OK = true; // open sending uart
 }
@@ -83,132 +86,90 @@ BLYNK_WRITE(VirPort_ONbutton)
 // blynk button //  发射率坡度   20%--20%
 BLYNK_WRITE(VirPort_ParHwSG_radiant)
 {
-    float RadiantValue = param.asFloat(); // assigning incoming value from Vpin  to a variable
-    if (RadiantValue > 19.8)
-        RadiantValue = 19.8;
-    if (RadiantValue < -19.8)
-        RadiantValue = -19.8;
+    float RadiantValue = param.asFloat();  
     H2H_Working_Par.HwSGsetup0_radiant = RadiantValue;
 }
 // VirPort_ParHwSG_PlaceID  //  //  地址编号 00-99
 BLYNK_WRITE(VirPort_ParHwSG_PlaceID)
 {
-    int8_t PlaceID = param.asInt(); // assigning incoming value from Vpin  to a variable
-    if (PlaceID > 90)
-        PlaceID = 90;
-    if (PlaceID < 0)
-        PlaceID = 0;  
+    int8_t PlaceID = param.asInt(); 
     H2H_Working_Par.HwSGsetup1_PlaceID = PlaceID;
 }
 
-// #define VirPort_ParHwSG_4mAStartPoint V22 //  X100
-BLYNK_WRITE(VirPort_ParHwSG_4mAStartPoint)
+//  VirPort_ParHwSG_ResponseTime 响应时间 秒 0.1-9.9
+BLYNK_WRITE(VirPort_ParHwSG_ResponseTime)
 {
-    int8_t pinValue = param.asInt(); // assigning incoming value from Vpin  to a variable
-    if (pinValue > 8)
-        pinValue = 8;
-    if (pinValue < 1)
-        pinValue = 1;
-    Working_Par.HwSGsetup4_420mAStartPoint = pinValue;
+    float ResponseTime = param.asFloat(); //
+    H2H_Working_Par.HwSGsetup2_ResponseTime = ResponseTime;
 }
 
-// #define VirPort_ParHwSG_20mAENDtPoint V23  //   X100
-BLYNK_WRITE(VirPort_ParHwSG_20mAENDtPoint)
-{
-    int8_t pinValue = param.asInt(); // assigning incoming value from Vpin  to a variable
-    if (pinValue > 14)
-        pinValue = 14;
-    if (pinValue < 3)
-        pinValue = 3;
-    Working_Par.HwSGsetup5_420mAENDtPoint = pinValue;
-}
-
-// #define VirPort_ParHwSG_TEMUPLimit V24    //   X100
-BLYNK_WRITE(VirPort_ParHwSG_TEMUPLimit)
-{
-    int8_t pinValue = param.asInt(); // assigning incoming value from Vpin  to a variable
-    if (pinValue > 14)
-        pinValue = 14;
-    if (pinValue < 3)
-        pinValue = 3;
-    Working_Par.HwSGsetup9_TEMUPLimit = pinValue;
-}
-
-// #define VirPort_ParHwSG_TEMDOWNLimit V25  //   X100
-BLYNK_WRITE(VirPort_ParHwSG_TEMDOWNLimit)
-{
-    int8_t pinValue = param.asInt(); // assigning incoming value from Vpin  to a variable
-    if (pinValue > 10)
-        pinValue = 10;
-    if (pinValue < 1)
-        pinValue = 1;
-    Working_Par.HwSGsetup9_TEMUPLimit = pinValue;
-}
-
-// #define VirPort_ParHwSG_DisUpdatePeriod V26 //  0.1-9.9s
-BLYNK_WRITE(VirPort_ParHwSG_DisUpdatePeriod)
-{
-    int8_t pinValue = param.asInt(); // assigning incoming value from Vpin  to a variable
-    if (pinValue > 99)
-        pinValue = 99;
-    if (pinValue < 1)
-        pinValue = 1;
-    Working_Par.HwSGsetup2_DisUpdatePeriod = pinValue;
-}
-// #define VirPort_ParHwSG_DisStayPeriod V27   //  0.1-9.9s
+// VirPort_ParHwSG_DisStayPeriod V23  //  保持时间    0.1-9.9
 BLYNK_WRITE(VirPort_ParHwSG_DisStayPeriod)
 {
-    int8_t pinValue = param.asInt(); // assigning incoming value from Vpin  to a variable
-    if (pinValue > 99)
-        pinValue = 99;
-    if (pinValue < 1)
-        pinValue = 1;
-    Working_Par.HwSGsetup3_DisStayPeriod = pinValue;
-}
-//#define VirPort_ParHwSG_AntiBaseLine V28    //  20-40
-BLYNK_WRITE(VirPort_ParHwSG_AntiBaseLine)
-{
-    int8_t pinValue = param.asInt(); // assigning incoming value from Vpin  to a variable
-    if (pinValue > 40)
-        pinValue = 40;
-    if (pinValue < 20)
-        pinValue = 20;
-    Working_Par.HwSGsetup6_AntiBaseLine = pinValue;
-}
-//#define VirPort_ParHwSG_OverSignalline V29 //
-BLYNK_WRITE(VirPort_ParHwSG_OverSignalline)
-{
-    int8_t pinValue = param.asInt(); // assigning incoming value from Vpin  to a variable
-    if (pinValue > 99)
-        pinValue = 99;
-    if (pinValue < 1)
-        pinValue = 1;
-    Working_Par.HwSGsetup12_OverSignalline = pinValue;
+    float DisStayPeriod = param.asFloat();
+    H2H_Working_Par.HwSGsetup3_DisStayPeriod = DisStayPeriod;
 }
 
-//#defineVirPort_ParHwSG_GapIn1Sec V30
-BLYNK_WRITE(defineVirPort_ParHwSG_GapIn1Sec)
+// VirPort_ParHwSG_RecordPeriod V24   //  定时记录间隔  1,2，3,4,5,6，10 ,12，15，20,30
+BLYNK_WRITE(VirPort_ParHwSG_RecordPeriod)
 {
-    int8_t pinValue = param.asInt(); // assigning incoming value from Vpin  to a variable
-    if (pinValue > 99)
-        pinValue = 99;
-    if (pinValue < 10)
-        pinValue = 10;
-    Working_Par.HwSGsetup11_GapIn1Sec = pinValue;
+    int8_t RecordPeriod = param.asInt(); //  
+    while ((60 % RecordPeriod)>0)
+    {
+      RecordPeriod--;   
+    }
+    H2H_Working_Par.HwSGsetup4_RecordPeriod= RecordPeriod;
 }
 
-//VirPort_ParHwSG_UartID V31
+//VirPort_ParHwSG_ShutDownPeriod V25 //  定时关机时间  分钟  00-59
+BLYNK_WRITE(VirPort_ParHwSG_ShutDownPeriod)
+{
+    int8_t ShutDownPeriod = param.asInt(); //
+    H2H_Working_Par.HwSGsetup5_ShutDownPeriod = ShutDownPeriod;
+}
+
+// VirPort_ParHwSG_ALimit V26         //  最低辐射A值  00-99
+BLYNK_WRITE(VirPort_ParHwSG_ALimit)
+{
+    int8_t ALimit = param.asInt(); // assigning incoming value from Vpin  to a variable
+    H2H_Working_Par.HwSGsetup6_ALimit = ALimit;
+}
+// VirPort_ParHwSG_UartID V27         //  通讯编号  0-7
 BLYNK_WRITE(VirPort_ParHwSG_UartID)
 {
-    int8_t pinValue = param.asInt(); // assigning incoming value from Vpin  to a variable
-    if (pinValue > 15)
-        pinValue = 15;
-    if (pinValue < 0)
-        pinValue = 0;
-    Working_Par.HwSGsetup8_UartID = pinValue;
+    int8_t UartID = param.asInt(); // assigning incoming value from Vpin  to a variable
+    H2H_Working_Par.HwSGsetup7_UartID= UartID;
+}
+//VirPort_ParHwSG_TEMUPLimit V28     // 测温上限
+BLYNK_WRITE(VirPort_ParHwSG_TEMUPLimit)
+{
+    int16_t TEMUPLimit = param.asInt(); //  
+    H2H_Working_Par.HwSGsetup8_TEMUPLimit = TEMUPLimit;
+}
+//VirPort_ParHwSG_TEMDOWNLimit V29   // 测温下限
+BLYNK_WRITE(VirPort_ParHwSG_TEMDOWNLimit)
+{
+    int16_t TEMDOWNLimit = param.asInt(); // 
+    H2H_Working_Par.HwSGsetup9_TEMDOWNLimit = TEMDOWNLimit;
 }
 
-// this function do every second push Tem to blynk app  // You can send any value at any time.  // Please don't send more that 10 values per second.
+//VirPort_ParHwSG_GapInAverage V30   //  平均值互差  10-99
+BLYNK_WRITE(VirPort_ParHwSG_GapInAverage)
+{
+    int8_t GapInAverage = param.asInt(); // assigning incoming value from Vpin  to a variable
+    H2H_Working_Par.HwSGsetup10_GapInAverage = GapInAverage;
+}
+
+// VirPort_ParHwSG_GainLimit V31      //  最大增益限制系数 00-99
+BLYNK_WRITE(VirPort_ParHwSG_GainLimit)
+{
+    int8_t GainLimit = param.asInt(); // assigning incoming value from Vpin  to a variable
+    H2H_Working_Par.HwSGsetup11_GainLimit= GainLimit;
+}
+
+// this function do every second push Tem to blynk app  
+// You can send any value at any time.  
+// Please don't send more that 10 values per second.
 void H2HTimerEvent()
 {
     if (HWSGTxD_OK)

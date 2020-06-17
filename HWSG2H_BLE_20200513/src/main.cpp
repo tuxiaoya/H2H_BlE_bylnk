@@ -40,20 +40,24 @@
 
 #include <HardwareSerial.h>
 #include "MGHWSG2.h"
+// #include <nvs.h>
+
 #ifdef BLYNK_WIFI
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <BlynkSimpleEsp32.h>
+
 #else
-#include <BlynkSimpleEsp32_BLE.h>
+
 #include <BLEDevice.h>
 #include <BLEServer.h>
+#include <BlynkSimpleEsp32_BLE.h>
 #endif
 
-//#include <Wire.h>
-//#include "Adafruit_mMLX90614.h"
+    //#include <Wire.h>
+    //#include "Adafruit_mMLX90614.h"
 
-HardwareSerial M5310_Serial(0);
+    HardwareSerial M5310_Serial(0);
 HardwareSerial DIWEN_Serial(1);
 HardwareSerial HWSG_Serial(2); //RX2 16  TX2 17
 // You should get Auth Token in the Blynk App. Parameters2H_default
@@ -101,8 +105,7 @@ void setup()
   Blynk.setDeviceName("MINGUANG_H2");
   Blynk.begin(auth);
 #endif
-
-
+  
   set_led(HWSGTxD_OK);
   HWSG2H.Begin(1200);
   timer_2H.setInterval(1000L, H2HTimerEvent);  

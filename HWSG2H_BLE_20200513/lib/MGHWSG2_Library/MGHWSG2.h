@@ -90,44 +90,6 @@ struct H2H_Parameters_Str // HWSG2H 设定数据结构体   字节
     uint8_t HwSGsetup12_Backup;         //  备用
 };
 
-struct HWSG2_Parameters_Str // HWSG2 设定数据结构体   字节
-{
-    uint8_t HwSG_Parameters_frame[16];  //  0xc0  原始数据
-                                        //  数据抽象体
-    float HwSGsetup0_radiant;           //  发射率坡度  9.9   -9.9    20%--20%
-    float HwSGsetup1_420mARate;         //  4-20MA 微调  9.9%   -9.9%
-    float HwSGsetup2_DisUpdatePeriod;   //  0.1-9.9
-    float HwSGsetup3_DisStayPeriod;     //  0.1-9.9
-    uint8_t HwSGsetup4_420mAStartPoint; //  X100
-    uint8_t HwSGsetup5_420mAENDtPoint;  //   X100
-    uint8_t HwSGsetup6_AntiBaseLine;    //  20-40
-    bool HwSGsetup7_LockBit;            //  true or  faule
-    uint8_t HwSGsetup8_UartID;          //  0-F
-    uint16_t HwSGsetup9_TEMUPLimit;     //   X100
-    uint16_t HwSGsetup10_TEMDOWNLimit;   //   X100
-    uint8_t HwSGsetup11_GapIn1Sec;      //  Gap limit of thermometricbase in one second
-    uint8_t HwSGsetup12_OverSignalline; //
-    uint8_t HwSGsetup13_Backup;          //
-} ;                                    //HWSG  参数   结构体
-
-// 默认HWSG2 高温参数
-const HWSG2_Parameters_Str Parameters_HIGH = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, //HwSG_Parameters_frame[16]:{},
-    HwSGsetup0_radiant : 0,
-    HwSGsetup1_420mARate : 0,       //  4-20MA 微调  9.9%   -9.9%
-    HwSGsetup2_DisUpdatePeriod : 2, //  0.1-9.9
-    HwSGsetup3_DisStayPeriod : 2 ,
-    HwSGsetup4_420mAStartPoint : 6, //  X100
-    HwSGsetup5_420mAENDtPoint : 12, //   X100
-    HwSGsetup6_AntiBaseLine : 20,   //  20-40
-    HwSGsetup7_LockBit : false,     //  true or  faule
-    HwSGsetup8_UartID : 0,          //  0-F
-    HwSGsetup9_TEMUPLimit : 10,     //   X100
-    HwSGsetup10_TEMDOWNLimit : 4,    //   X100
-    HwSGsetup11_GapIn1Sec : 5,      //  Gap limit of thermometricbase in one second
-    HwSGsetup12_OverSignalline : 5, //
-    HwSGsetup13_Backup : 0,
-};
 
 void Transform_Parameters_INT(H2H_Parameters_Str *InPar);
 
@@ -147,9 +109,8 @@ public:
     MinGuang_HWSH2(uint8_t HWSGAddress, uint8_t Type, HardwareSerial *HardwareSerialport);
     void Begin(uint32_t baudrate);
     HWSG2_Online_Temp GetHWSG2_RealtimeTemp(uint8_t HWSGAddress);      //default  no  is  0  // 读取温度+ 环境温度 手持同样
-    boolean Set_H2H_parameters(uint8_t HWSGAddress, H2H_Parameters_Str SetPar);     // 设置2H参数
-    HWSG2_Parameters_Str Get_HWSG2_parameters(uint8_t HWSGAddress);                 // get 参数
-    H2H_Parameters_Str   Get_HWSG2H_parameters(uint8_t HWSGAddress);
+    boolean Set_H2H_parameters(uint8_t HWSGAddress, H2H_Parameters_Str SetPar);     // 设置2H参数           
+    H2H_Parameters_Str   Get_HWSG2H_parameters(uint8_t HWSGAddress);  // get 2H 参数
     
     private : //  成员变量  小写加下划线  私有方法  + 私有 RXD_TemDataFrame
     HWSG2_Online_Temp HWSGUART_Transto_Temp(HWSG2_Online_Uartframe huf);
@@ -158,7 +119,7 @@ public:
     void TXD_GETpar_Handshake(uint8_t HWSGAddress);               // 连续发两次  命令HWSG送出工作参数  DN
     void TXD_SETpar_Handshake(uint8_t HWSGAddress);               // 连续发两次  命令HWSG收工作参数  EN
     HWSG2_Online_Uartframe RXD_TEM_Frame(uint8_t HWSGAddress);    // 发出 C0+ 后 等待接受 C0+8帧byte温度数据
-    HWSG2_Parameters_Str RXD_Parameters_HWSG(uint8_t HWSGAddress); // 发出 D0+ 后 等待接受 D0+16帧byte Parameters
+    // HWSG2_Parameters_Str RXD_Parameters_HWSG(uint8_t HWSGAddress); // 发出 D0+ 后 等待接受 D0+16帧byte Parameters
     boolean RXD_ParOK_16Parameters(uint8_t HWSGAddress);           // 发出 E0+ 后 接受到 E0+  正确后送 16帧byte Parameters
       // void Transform_Parameters_INT(H2H_Parameters_Str *InPar);
     H2H_Parameters_Str  Transform_Parameters_HWSG(H2H_Parameters_Str InPar);

@@ -40,25 +40,25 @@ HWSG2_Online_Temp MinGuang_HWSH2::GetHWSG2_RealtimeTemp(uint8_t HWSGAddress)
 // #define HWSG_TEM_OK 1
 // #define HWSG_TEM_illegal 0
 // °ÑÊý¾ÝÖ¡×ª»»Îª ÎÂ¶È+»·¾³ÎÂ¶È+Êý¾Ý×´Ì¬
-//  
+//
 HWSG2_Online_Temp MinGuang_HWSH2::HWSGUART_Transto_Temp(HWSG2_Online_Uartframe huf)
 {
     HWSG2_Online_Temp ht;
-    uint16_t h0, h1, h2, h3; // ho is  low byte of frame
+    uint16_t h0, h1, h2, h3;        // ho is  low byte of frame
     h0 = huf.HwSG_RX_data[1] & 0xf; //È¡µÍËÄÎ»
     h1 = huf.HwSG_RX_data[2] & 0xf;
-    h1 = h1*16;
+    h1 = h1 * 16;
     h2 = huf.HwSG_RX_data[3] & 0xf;
     if (h2 >= 8) // h2 must be <8 else tem will over 2048 thatis illegal
-    { // otherwise the tem data is illegal
+    {            // otherwise the tem data is illegal
 #ifdef Uart_DEBUG
-        Serial.print("h2>8 HWSG_TEM_illegal :");        
+        Serial.print("h2>8 HWSG_TEM_illegal :");
         Serial.println(h2);
 #endif
         ht.Temp_State = HWSG_TEM_illegal;
         return ht;
-    }    
-    h2 = h2*256;
+    }
+    h2 = h2 * 256;
     h3 = huf.HwSG_RX_data[4] & 0xf; // h3 must be 0
     if (h3 != 0)
     { // otherwise the tem data is illegal
@@ -81,11 +81,11 @@ HWSG2_Online_Temp MinGuang_HWSH2::HWSGUART_Transto_Temp(HWSG2_Online_Uartframe h
     {
 #ifdef Uart_DEBUG
         Serial.print("h1>7 HWSG_TEM_illegal:");
-        Serial.println(  h1 );
+        Serial.println(h1);
 #endif
-        ht.Temp_State = HWSG_TEM_illegal;// h1 must be <7  else »·¾³ÎÂ¶È will over 111 ¶È  that is impossible
+        ht.Temp_State = HWSG_TEM_illegal; // h1 must be <7  else »·¾³ÎÂ¶È will over 111 ¶È  that is impossible
         return ht;
-    }    
+    }
     h1 = h1 << 4;
     // noa ,the  tem is ok
     ht.AmbTemp = h0 + h1;
@@ -112,14 +112,14 @@ void MinGuang_HWSH2::TXD_GETTEM_Handshake(uint8_t HWSGAddress) //  ·¢Á½¸öÎÕÊÖ  0
 void MinGuang_HWSH2::TXD_RESET_HWSG(uint8_t HWSGAddress) //
 {
     SERIAL_WRITE(HWSGAddress + _HWSG_RESET_CMD0);
-   // SERIAL_WRITE(HWSGAddress + _HWSG_RESET_CMD0);
+    // SERIAL_WRITE(HWSGAddress + _HWSG_RESET_CMD0);
 }
 
 // ÃüÁîHWSGËÍ³ö¹¤×÷²ÎÊý  DN
 void MinGuang_HWSH2::TXD_GETpar_Handshake(uint8_t HWSGAddress)
 {
-    SERIAL_WRITE(HWSGAddress + _HWSG_RESET_CMD0);  // ËÍ²ÎÊýÖ®Ç°¸´Î»Ò»´Î£¬±£Ö¤´¦ÓÚÕý³£×´Ì¬  delay 500ms
-    delay(500);                                    //
+    SERIAL_WRITE(HWSGAddress + _HWSG_RESET_CMD0); // ËÍ²ÎÊýÖ®Ç°¸´Î»Ò»´Î£¬±£Ö¤´¦ÓÚÕý³£×´Ì¬  delay 500ms
+    delay(500);                                   //
     while (_h2Serial->read() >= 0)
     { //Çå¿Õ´®¿Ú»º´æ
     }
@@ -129,7 +129,7 @@ void MinGuang_HWSH2::TXD_GETpar_Handshake(uint8_t HWSGAddress)
 }
 
 // ÃüÁîHWSGÊÕ¹¤×÷²ÎÊý
-void MinGuang_HWSH2::TXD_SETpar_Handshake(uint8_t HWSGAddress) // ÃüÁîHWSGÊÕ¹¤×÷²ÎÊý   
+void MinGuang_HWSH2::TXD_SETpar_Handshake(uint8_t HWSGAddress) // ÃüÁîHWSGÊÕ¹¤×÷²ÎÊý
 {
     while (_h2Serial->read() >= 0)
     { //Çå¿Õ´®¿Ú»º´æ
@@ -168,7 +168,7 @@ HWSG2_Online_Uartframe MinGuang_HWSH2::RXD_TEM_Frame(uint8_t HWSGAddress) // ·¢³
 #ifdef Uart_DEBUG
             Serial.print(idx);
             Serial.print(":0x");
-            Serial.println(inByte,HEX);
+            Serial.println(inByte, HEX);
 #endif
         }
         if (idx == 9) //  ½ÓÊÜµ½9Ö¡Êý¾Ý Õý³£
@@ -190,60 +190,14 @@ HWSG2_Online_Uartframe MinGuang_HWSH2::RXD_TEM_Frame(uint8_t HWSGAddress) // ·¢³
     return reading_frame;
 }
 
-// ·¢³ö D0+ ºó µÈ´ý½ÓÊÜ D0+16Ö¡byte Parameters
-HWSG2_Parameters_Str MinGuang_HWSH2::RXD_Parameters_HWSG(uint8_t HWSGAddress = 0)
-{
-}
+
 
 // ·¢³ö E0+ ºó ½ÓÊÜµ½ E0+  ÕýÈ·ºóËÍ 16Ö¡byte Parameters
 boolean MinGuang_HWSH2::RXD_ParOK_16Parameters(uint8_t HWSGAddress = 0)
 {
 }
 
-HWSG2_Parameters_Str MinGuang_HWSH2::Get_HWSG2_parameters(uint8_t HWSGAddress) // get ²ÎÊý
-{
 
-    HWSG2_Parameters_Str H2Par_Str;
-    TXD_GETpar_Handshake( HWSGAddress);
-
-    uint8_t inByte;
-    uint8_t idx = 0;
-    unsigned long currentMillis = millis();
-    unsigned long TxDstart_Millis;
-    TxDstart_Millis = currentMillis;
-
-    while (currentMillis - TxDstart_Millis < HWSG2_uart_timeout) //  ÅÐ¶ÏUART ÊÇ·ñ½ÓÊÜ³¬Ê±
-    {
-        currentMillis = millis();       //
-        if (_h2Serial->available() > 0) //»º³åÇø»¹ÓÐÊý
-        {
-            inByte = _h2Serial->read(); // get incoming byte:
-            H2Par_Str.HwSG_Parameters_frame[idx] = inByte;
-            idx++;
-#ifdef Uart_DEBUG
-            Serial.print(idx);
-            Serial.print(":0x");
-            Serial.println(inByte, HEX);
-#endif
-        }
-        if (idx == 16) //  ¼ÓÉÏÖ¡Í· D0 ¹²½ÓÊÜµ½17Ö¡Êý¾Ý0-16
-        {
-#ifdef Uart_DEBUG
-            Serial.print("HWSG_UART_OK:");
-            Serial.print(idx);
-#endif
-            H2Par_Str.HwSGsetup13_Backup = HWSG_UART_OK; // Ö¡Êý¾ÝÕý³£
-            return H2Par_Str;
-        }
-    }
-
-#ifdef Uart_DEBUG
-    Serial.print("HWSG_UART_TIMEOUT:");
-    Serial.print(idx);
-#endif
-    H2Par_Str.HwSGsetup13_Backup = HWSG_UART_TIMEOUT;
-    return H2Par_Str;
-}
 
 H2H_Parameters_Str MinGuang_HWSH2::Get_HWSG2H_parameters(uint8_t HWSGAddress) // get ²ÎÊý
 {
@@ -296,7 +250,7 @@ boolean MinGuang_HWSH2::Set_H2H_parameters(uint8_t HWSGAddress, H2H_Parameters_S
     return true;
 #endif
     TXD_SETpar_Handshake(HWSGAddress); // send E0 X 2
-    uint8_t inByte;    
+    uint8_t inByte;
     unsigned long currentMillis = millis();
     unsigned long TxDstart_Millis;
     TxDstart_Millis = currentMillis;
@@ -306,82 +260,83 @@ boolean MinGuang_HWSH2::Set_H2H_parameters(uint8_t HWSGAddress, H2H_Parameters_S
         if (_h2Serial->available() > 0) //»º³åÇø»¹ÓÐÊý
         {
             inByte = _h2Serial->read(); // get incoming byte:
-            if(inByte == HWSGAddress+_HWSG_SETPAR_CMD0){ //ÊÕµ½ 0XE0+HWSGAddress ·¢ËÍ16Ö¡2H²ÎÊý
+            if (inByte == HWSGAddress + _HWSG_SETPAR_CMD0)
+            { //ÊÕµ½ 0XE0+HWSGAddress ·¢ËÍ16Ö¡2H²ÎÊý
                 for (uint8_t i = 0; i < 16; i++)
-                {SERIAL_WRITE(SetPar.HwSG_Parameters_frame[i]);
+                {
+                    SERIAL_WRITE(SetPar.HwSG_Parameters_frame[i]);
                 }
                 return true; //  ·¢ËÍ16Ö¡2H²ÎÊýÍê³É return true
             }
         }
     }
     return false; // ³¬Ê±·µ»ØÊ§°Ü return false
-  }
+}
 
+// °ÑINT8Êý¾Ý ×ª»»Îª HWSGÒÇÆ÷²ÎÊýÊ¹ÓÃµÄ¹ÖÒìÊ®½øÖÆ 9.9
+uint8_t HexToDec(int8_t D_Hex)
+{
+    uint8_t D_Dec;
+    D_Hex = abs(D_Hex);
+    D_Dec = D_Hex / 10;
+    D_Dec << 4;
+    D_Dec = D_Dec + D_Hex % 10;
+    return D_Dec;
+}
 
-        // °ÑINT8Êý¾Ý ×ª»»Îª HWSGÒÇÆ÷²ÎÊýÊ¹ÓÃµÄ¹ÖÒìÊ®½øÖÆ 9.9
-        uint8_t HexToDec(int8_t D_Hex)
-        {
-            uint8_t D_Dec;
-            D_Hex = abs(D_Hex);
-            D_Dec = D_Hex / 10;
-            D_Dec << 4;
-            D_Dec = D_Dec + D_Hex % 10;
-            return D_Dec;
-        }
+//    ×ª»»2H²ÎÊý½á¹¹Êý¾Ý   *HWSGÒÇÆ÷²ÎÊýÊ¹ÓÃµÄÊÇÊ®½øÖÆ
+H2H_Parameters_Str MinGuang_HWSH2::Transform_Parameters_HWSG(H2H_Parameters_Str InPar)
+{
+    H2H_Parameters_Str OutPar;
+    // Ä¬ÈÏ²ÎÊý·ûºÅÎ»È«²¿ÎªÕý  £º 0²ÎÊýÎªÕý  1Îª¸º
+    OutPar.HwSG_Parameters_frame[15] = 0;
+    //  HwSGsetup0_radiant; //  ·¢ÉäÂÊÆÂ¶È  99   -99  ¶ÔÓ¦ 19.8%   -19.8%
+    OutPar.HwSG_Parameters_frame[0] =HexToDec((uint8_t)(InPar.HwSGsetup0_radiant * 5));
+    if (InPar.HwSGsetup0_radiant < 0)
+    {                                                  //  Èç¹ûÎª¸ºÖµ ÖÃ¶ÔÓ¦µÄ µÚF#par ·ûºÅÎ» |=
+        OutPar.HwSG_Parameters_frame[15] |= B00000001; //D0
+    }
+    OutPar.HwSG_Parameters_frame[1] = HexToDec(InPar.HwSGsetup1_PlaceID);             // µØÖ·±àºÅ 00-99
+    OutPar.HwSG_Parameters_frame[2] = HexToDec((uint8_t)InPar.HwSGsetup2_ResponseTime * 10); // ÏìÓ¦Ê±¼ä 1-99  ¶ÔÓ¦0.1-9.9Ãë
+    OutPar.HwSG_Parameters_frame[3] = HexToDec((uint8_t)InPar.HwSGsetup3_DisStayPeriod * 10); // ±£³ÖÊ±¼ä    0.1-9.9 0-99  ¶ÔÓ¦0.0-9.9Ãë
+    OutPar.HwSG_Parameters_frame[4] = HexToDec(InPar.HwSGsetup4_RecordPeriod);        // ¶¨Ê±¼ÇÂ¼¼ä¸ô  1£¬6£¬12£¬18£¬24£¬30
+    OutPar.HwSG_Parameters_frame[5] = HexToDec(InPar.HwSGsetup5_ShutDownPeriod);      // ¶¨Ê±¹Ø»úÊ±¼ä  ·ÖÖÓ  00-59
+    OutPar.HwSG_Parameters_frame[6] = HexToDec(InPar.HwSGsetup6_ALimit);              //  min A 0-99
+    OutPar.HwSG_Parameters_frame[7] = InPar.HwSGsetup7_UartID;                        //  0-7 ID±àºÅ                                                          // Ëø¼ü
+    OutPar.HwSG_Parameters_frame[8] = HexToDec(InPar.HwSGsetup8_TEMUPLimit / 100);    // ²âÎÂÉÏÏÞ°ÙÎ»
+    OutPar.HwSG_Parameters_frame[9] = HexToDec(InPar.HwSGsetup8_TEMUPLimit % 100);    // ²âÎÂÉÏÏÞÊ®Î»
+    OutPar.HwSG_Parameters_frame[10] = HexToDec(InPar.HwSGsetup9_TEMDOWNLimit / 100); // ²âÎÂÏÂÏÞ°ÙÎ»
+    OutPar.HwSG_Parameters_frame[11] = HexToDec(InPar.HwSGsetup9_TEMDOWNLimit % 100); // ²âÎÂÏÂÏÞ10Î»
+    OutPar.HwSG_Parameters_frame[12] = HexToDec(InPar.HwSGsetup10_GapInAverage);      // 1sÄÚ Æ½¾ùÖµ»¥²éÏÞ Í¨³£Îª20
+    OutPar.HwSG_Parameters_frame[13] = HexToDec(InPar.HwSGsetup11_GainLimit);         // ×î´óÔöÒæÏÞÖÆÏµÊý 00-99
+}
 
-        //    ×ª»»2H²ÎÊý½á¹¹Êý¾Ý   *HWSGÒÇÆ÷²ÎÊýÊ¹ÓÃµÄÊÇÊ®½øÖÆ
-        H2H_Parameters_Str MinGuang_HWSH2::Transform_Parameters_HWSG(H2H_Parameters_Str InPar)
-        {
-            H2H_Parameters_Str OutPar;
-            // Ä¬ÈÏ²ÎÊý·ûºÅÎ»È«²¿ÎªÕý  £º 0²ÎÊýÎªÕý  1Îª¸º
-            OutPar.HwSG_Parameters_frame[15] = 0;
-            //  HwSGsetup0_radiant; //  ·¢ÉäÂÊÆÂ¶È  99   -99  ¶ÔÓ¦ 19.8%   -19.8%
-            OutPar.HwSG_Parameters_frame[0] = HexToDec(InPar.HwSGsetup0_radiant);
-            if (InPar.HwSGsetup0_radiant < 0)
-            {                                                  //  Èç¹ûÎª¸ºÖµ ÖÃ¶ÔÓ¦µÄ µÚF#par ·ûºÅÎ» |=
-                OutPar.HwSG_Parameters_frame[15] |= B00000001; //D0
-            }
-            OutPar.HwSG_Parameters_frame[1] = HexToDec(InPar.HwSGsetup1_PlaceID);             // µØÖ·±àºÅ 00-99
-            OutPar.HwSG_Parameters_frame[2] = HexToDec(InPar.HwSGsetup2_ResponseTime);        // ÏìÓ¦Ê±¼ä 1-99  ¶ÔÓ¦0.1-9.9Ãë
-            OutPar.HwSG_Parameters_frame[3] = HexToDec(InPar.HwSGsetup3_DisStayPeriod);       // ±£³ÖÊ±¼ä    0.1-9.9 0-99  ¶ÔÓ¦0.0-9.9Ãë
-            OutPar.HwSG_Parameters_frame[4] = HexToDec(InPar.HwSGsetup4_RecordPeriod);        // ¶¨Ê±¼ÇÂ¼¼ä¸ô  1£¬6£¬12£¬18£¬24£¬30
-            OutPar.HwSG_Parameters_frame[5] = HexToDec(InPar.HwSGsetup5_ShutDownPeriod);      // ¶¨Ê±¹Ø»úÊ±¼ä  ·ÖÖÓ  00-59
-            OutPar.HwSG_Parameters_frame[6] = HexToDec(InPar.HwSGsetup6_ALimit);              //  min A 0-99
-            OutPar.HwSG_Parameters_frame[7] = InPar.HwSGsetup7_UartID;                        //  0-7 ID±àºÅ                                                          // Ëø¼ü
-            OutPar.HwSG_Parameters_frame[8] = HexToDec(InPar.HwSGsetup8_TEMUPLimit / 100);    // ²âÎÂÉÏÏÞ°ÙÎ»
-            OutPar.HwSG_Parameters_frame[9] = HexToDec(InPar.HwSGsetup8_TEMUPLimit % 100);    // ²âÎÂÉÏÏÞÊ®Î»
-            OutPar.HwSG_Parameters_frame[10] = HexToDec(InPar.HwSGsetup9_TEMDOWNLimit / 100); // ²âÎÂÏÂÏÞ°ÙÎ»
-            OutPar.HwSG_Parameters_frame[11] = HexToDec(InPar.HwSGsetup9_TEMDOWNLimit % 100); // ²âÎÂÏÂÏÞ10Î»
-            OutPar.HwSG_Parameters_frame[12] = HexToDec(InPar.HwSGsetup10_GapInAverage);      // 1sÄÚ Æ½¾ùÖµ»¥²éÏÞ Í¨³£Îª20
-            OutPar.HwSG_Parameters_frame[13] = HexToDec(InPar.HwSGsetup11_GainLimit);         // ×î´óÔöÒæÏÞÖÆÏµÊý 00-99
-        }
-
-        // °Ñ HWSGÒÇÆ÷²ÎÊýÊ¹ÓÃµÄ¹ÖÒìÊ®½øÖÆ  ×ª»»Îª INT8Êý¾Ý
-        uint8_t H2DecToHex(int8_t H2_Dec)
-        {
-            uint8_t D_Hex;
-            D_Hex = H2_Dec >> 4 * 10 + H2_Dec & B00001111;
-            return D_Hex;
-        }
-        //Ö¸Õë·½Ê½×ª»» ¹ÖÒì²ÎÊý µ½ INT
-        void Transform_Parameters_INT(H2H_Parameters_Str * InPar)
-        {
-            //  HwSGsetup0_radiant; //  ·¢ÉäÂÊÆÂ¶È  99   -99  ¶ÔÓ¦ 19.8%   -19.8%
-            InPar->HwSGsetup0_radiant = H2DecToHex(InPar->HwSG_Parameters_frame[0]);
-            if (InPar->HwSG_Parameters_frame[15] & B00000001 > 0)       // 15ºÅ²ÎÊý×¨Ë¾·ûºÅ£¬D0Îª1 ±íÊ¾ 0ºÅ²ÎÊýÎª¸ºÖµ
-            {                                                           //
-                InPar->HwSGsetup0_radiant = -InPar->HwSGsetup0_radiant; //
-            }
-            InPar->HwSGsetup1_PlaceID = H2DecToHex(InPar->HwSG_Parameters_frame[1]);        // µØÖ·±àºÅ 00-99
-            InPar->HwSGsetup2_ResponseTime = H2DecToHex(InPar->HwSG_Parameters_frame[2]);   // ÏìÓ¦Ê±¼ä 1-99  ¶ÔÓ¦0.1-9.9Ãë
-            InPar->HwSGsetup3_DisStayPeriod = H2DecToHex(InPar->HwSG_Parameters_frame[3]);  // ±£³ÖÊ±¼ä    0.1-9.9 0-99  ¶ÔÓ¦0.0-9.9Ãë
-            InPar->HwSGsetup4_RecordPeriod = H2DecToHex(InPar->HwSG_Parameters_frame[4]);   // ¶¨Ê±¼ÇÂ¼¼ä¸ô  1£¬6£¬12£¬18£¬24£¬30
-            InPar->HwSGsetup5_ShutDownPeriod = H2DecToHex(InPar->HwSG_Parameters_frame[5]); // ¶¨Ê±¹Ø»úÊ±¼ä  ·ÖÖÓ  00-59
-            InPar->HwSGsetup6_ALimit = H2DecToHex(InPar->HwSG_Parameters_frame[6]);         //  min A 0-99
-            InPar->HwSGsetup7_UartID = InPar->HwSG_Parameters_frame[7];                     //  0-7 ID±àºÅ
-                                                                                            // ²âÎÂÉÏÏÞ°ÙÎ»         // ²âÎÂÉÏÏÞÊ®Î»
-            InPar->HwSGsetup8_TEMUPLimit = H2DecToHex(InPar->HwSG_Parameters_frame[8]) * 100 + H2DecToHex(InPar->HwSG_Parameters_frame[9]);
-            InPar->HwSGsetup9_TEMDOWNLimit = H2DecToHex(InPar->HwSG_Parameters_frame[10]) * 100 + H2DecToHex(InPar->HwSG_Parameters_frame[11]);
-            InPar->HwSGsetup10_GapInAverage = H2DecToHex(InPar->HwSG_Parameters_frame[12]); // 1sÄÚ Æ½¾ùÖµ»¥²éÏÞ Í¨³£Îª20
-            InPar->HwSGsetup11_GainLimit = H2DecToHex(InPar->HwSG_Parameters_frame[13]);    // ×î´óÔöÒæÏÞÖÆÏµÊý 00-99
-        } 
+// °Ñ HWSGÒÇÆ÷²ÎÊýÊ¹ÓÃµÄ¹ÖÒìÊ®½øÖÆ  ×ª»»Îª INT8Êý¾Ý
+uint8_t H2DecToHex(int8_t H2_Dec)
+{
+    uint8_t D_Hex;
+    D_Hex = H2_Dec >> 4 * 10 + H2_Dec & B00001111;
+    return D_Hex;
+}
+//Ö¸Õë·½Ê½×ª»» ¹ÖÒì²ÎÊý µ½ C++ Êý¾Ý¸ñÊ½
+void Transform_Parameters_INT(H2H_Parameters_Str *InPar)
+{
+    //  HwSGsetup0_radiant; //  ·¢ÉäÂÊÆÂ¶È  99   -99  ¶ÔÓ¦ 19.8%   -19.8%
+    InPar->HwSGsetup0_radiant = (float)(H2DecToHex(InPar->HwSG_Parameters_frame[0]) )/ 5;
+    if (InPar->HwSG_Parameters_frame[15] & B00000001 > 0)       // 15ºÅ²ÎÊý×¨Ë¾·ûºÅ£¬D0Îª1 ±íÊ¾ 0ºÅ²ÎÊýÎª¸ºÖµ
+    {                                                           //
+        InPar->HwSGsetup0_radiant = -(InPar->HwSGsetup0_radiant); //
+    }
+    InPar->HwSGsetup1_PlaceID = H2DecToHex(InPar->HwSG_Parameters_frame[1]);        // µØÖ·±àºÅ 00-99
+    InPar->HwSGsetup2_ResponseTime = (float)(H2DecToHex(InPar->HwSG_Parameters_frame[2]))/10;   // ÏìÓ¦Ê±¼ä 1-99  ¶ÔÓ¦0.1-9.9Ãë
+    InPar->HwSGsetup3_DisStayPeriod =(float)(H2DecToHex(InPar->HwSG_Parameters_frame[3]))/10;  // ±£³ÖÊ±¼ä    0.1-9.9 0-99  ¶ÔÓ¦0.0-9.9Ãë
+    InPar->HwSGsetup4_RecordPeriod = H2DecToHex(InPar->HwSG_Parameters_frame[4]);   // ¶¨Ê±¼ÇÂ¼¼ä¸ô  1£¬6£¬12£¬18£¬24£¬30
+    InPar->HwSGsetup5_ShutDownPeriod = H2DecToHex(InPar->HwSG_Parameters_frame[5]); // ¶¨Ê±¹Ø»úÊ±¼ä  ·ÖÖÓ  00-59
+    InPar->HwSGsetup6_ALimit = H2DecToHex(InPar->HwSG_Parameters_frame[6]);         //  min A 0-99
+    InPar->HwSGsetup7_UartID = InPar->HwSG_Parameters_frame[7];                     //  0-7 ID±àºÅ
+                                                                                    // ²âÎÂÉÏÏÞ°ÙÎ»         // ²âÎÂÉÏÏÞÊ®Î»
+    InPar->HwSGsetup8_TEMUPLimit = H2DecToHex(InPar->HwSG_Parameters_frame[8]) * 100 + H2DecToHex(InPar->HwSG_Parameters_frame[9]);
+    InPar->HwSGsetup9_TEMDOWNLimit = H2DecToHex(InPar->HwSG_Parameters_frame[10]) * 100 + H2DecToHex(InPar->HwSG_Parameters_frame[11]);
+    InPar->HwSGsetup10_GapInAverage = H2DecToHex(InPar->HwSG_Parameters_frame[12]); // 1sÄÚ Æ½¾ùÖµ»¥²éÏÞ Í¨³£Îª20
+    InPar->HwSGsetup11_GainLimit = H2DecToHex(InPar->HwSG_Parameters_frame[13]);    // ×î´óÔöÒæÏÞÖÆÏµÊý 00-99
+}
