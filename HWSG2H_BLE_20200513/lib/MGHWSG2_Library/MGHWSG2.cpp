@@ -284,8 +284,8 @@ uint8_t HexToDec(int8_t D_Hex)
     return D_Dec;
 }
 
-//    转换2H参数结构数据   *HWSG仪器参数使用的是十进制
-H2H_Parameters_Str MinGuang_HWSH2::Transform_Parameters_HWSG(H2H_Parameters_Str InPar)
+//    转换2H参数结构数据   *HWSG仪器参数使用的是BCD十进制  ****非成员函数
+H2H_Parameters_Str  Transform_Parameters_HWSG(H2H_Parameters_Str InPar)
 {
     H2H_Parameters_Str OutPar;
     // 默认参数符号位全部为正  ： 0参数为正  1为负

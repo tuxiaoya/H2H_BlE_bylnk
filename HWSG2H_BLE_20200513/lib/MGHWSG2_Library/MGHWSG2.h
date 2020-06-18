@@ -92,6 +92,7 @@ struct H2H_Parameters_Str // HWSG2H 设定数据结构体   字节
 
 
 void Transform_Parameters_INT(H2H_Parameters_Str *InPar);
+H2H_Parameters_Str Transform_Parameters_HWSG(H2H_Parameters_Str InPar);
 
 class MinGuang_HWSH2 // HWSG2   仪器类 MinGuang_HWSH2
 {
@@ -121,9 +122,7 @@ public:
     HWSG2_Online_Uartframe RXD_TEM_Frame(uint8_t HWSGAddress);    // 发出 C0+ 后 等待接受 C0+8帧byte温度数据
     // HWSG2_Parameters_Str RXD_Parameters_HWSG(uint8_t HWSGAddress); // 发出 D0+ 后 等待接受 D0+16帧byte Parameters
     boolean RXD_ParOK_16Parameters(uint8_t HWSGAddress);           // 发出 E0+ 后 接受到 E0+  正确后送 16帧byte Parameters
-      // void Transform_Parameters_INT(H2H_Parameters_Str *InPar);
-    H2H_Parameters_Str  Transform_Parameters_HWSG(H2H_Parameters_Str InPar);
-
+    
 protected:
     Stream *_H2Stream;
     HardwareSerial *_h2Serial;

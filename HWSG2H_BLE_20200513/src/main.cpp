@@ -57,19 +57,23 @@
     //#include <Wire.h>
     //#include "Adafruit_mMLX90614.h"
 
-    HardwareSerial M5310_Serial(0);
-HardwareSerial DIWEN_Serial(1);
+//   HardwareSerial M5310_Serial(0);
+// HardwareSerial DIWEN_Serial(1);
 HardwareSerial HWSG_Serial(2); //RX2 16  TX2 17
 // You should get Auth Token in the Blynk App. Parameters2H_default
 // Go to the Project Settings (nut icon).
-char auth[] = "d020f28398e74135a0ee9da7215c85b8";
-char ssid[] = "敏光科技3";    //  4楼wifi
+char auth[] = "zbT-_ooonP8psoFe4W57_Pl0b-ZgsGiX"; // 武玉柱老师 60.213.28.10  QQ登录 密码hongminote2
+char ssid[] = "敏光科技3";    //  3楼wifi
 char pass[] = "mgkj8190688"; //
-// 武玉柱老师 60.213.28.10  裘老师 116.62.49.166 盛思 blynk.mpython.cn   官方 blynk-cloud.com
+// 武玉柱老师 60.213.28.10  裘老师 116.62.49.166 盛思 blynk.mpython.cn 119.23.66.134   官方 blynk-cloud.com
+IPAddress SS_IP(119,23,66,134);
+IPAddress QLS_IP(116,62,49,166);
 IPAddress WYZ_IP(60,213,28,10);
 uint16_t Blynk_PORT = 9443;
 
-boolean HWSGTxD_OK = true; // false;
+boolean HWSGTxD_OK = true; // 允许在线读取温度
+boolean HWSG2H_PAR_Got = false; // 已读取参数
+
 BlynkTimer timer_2H;
 // (uint8_t HWSGAddress, HWSG2_TYPE Type, HardwareSerial *HardwareSerialport)
 MinGuang_HWSH2 HWSG2H(0, 4, &HWSG_Serial); // 
@@ -95,13 +99,14 @@ void set_led(byte status)
 void setup()
 {  
   pinMode(LED_BUILTIN, OUTPUT);
-  Serial.begin(115200);
+  Serial.begin(115200); // 默认串口0  RX0：GPIO1   TX0：GPIO3  此串口是编程和调试串口，如果接器件会影响烧写！！！！
   Serial.println("Fucking for connections...");
 
 #ifdef BLYNK_WIFI
   Blynk.config(auth, WYZ_IP, Blynk_PORT);
   Blynk.begin(auth, ssid, pass);
 #else
+
   Blynk.setDeviceName("MINGUANG_H2");
   Blynk.begin(auth);
 #endif
