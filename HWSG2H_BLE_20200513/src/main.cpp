@@ -61,10 +61,11 @@
 // HardwareSerial DIWEN_Serial(1);
 HardwareSerial HWSG_Serial(2); //RX2 16  TX2 17
 // You should get Auth Token in the Blynk App. Parameters2H_default
-// Go to the Project Settings (nut icon).
-char auth[] = "zbT-_ooonP8psoFe4W57_Pl0b-ZgsGiX"; // 武玉柱老师 60.213.28.10  QQ登录 密码hongminote2
-char ssid[] = "敏光科技3";    //  3楼wifi
-char pass[] = "mgkj8190688"; //
+// f6107deaeac140209363b81857cca7ea
+char auth[] = "f6107deaeac140209363b81857cca7ea"; // 武玉柱老师 60.213.28.10  QQ登录 密码hongminote2
+// char auth[] = "d020f28398e74135a0ee9da7215c85b8"; // 武玉柱老师 60.213.28.10  QQ登录 密码hongminote2
+char ssid[] = "Redmi";    //  3楼wifi
+char pass[] = "tu7788414"; //
 // 武玉柱老师 60.213.28.10  裘老师 116.62.49.166 盛思 blynk.mpython.cn 119.23.66.134   官方 blynk-cloud.com
 IPAddress SS_IP(119,23,66,134);
 IPAddress QLS_IP(116,62,49,166);
@@ -103,7 +104,8 @@ void setup()
   Serial.println("Fucking for connections...");
 
 #ifdef BLYNK_WIFI
-  Blynk.config(auth, WYZ_IP, Blynk_PORT);
+  // Blynk.begin(auth, ssid, pass, "blynk.mpython.cn", Blynk_PORT);
+  // Blynk.begin(auth, ssid, pass, SS_IP, Blynk_PORT);
   Blynk.begin(auth, ssid, pass);
 #else
 
