@@ -191,14 +191,6 @@ HWSG2_Online_Uartframe MinGuang_HWSH2::RXD_TEM_Frame(uint8_t HWSGAddress) // ·¢³
 }
 
 
-
-// ·¢³ö E0+ ºó ½ÓÊÜµ½ E0+  ÕýÈ·ºóËÍ 16Ö¡byte Parameters
-boolean MinGuang_HWSH2::RXD_ParOK_16Parameters(uint8_t HWSGAddress = 0)
-{
-}
-
-
-
 H2H_Parameters_Str MinGuang_HWSH2::Get_HWSG2H_parameters(uint8_t HWSGAddress) // get ²ÎÊý
 {
 
@@ -279,7 +271,7 @@ uint8_t HexToDec(int8_t D_Hex)
     uint8_t D_Dec;
     D_Hex = abs(D_Hex);
     D_Dec = D_Hex / 10;
-    D_Dec << 4;
+    D_Dec =D_Dec<<4;
     D_Dec = D_Dec + D_Hex % 10;
     return D_Dec;
 }
@@ -309,13 +301,15 @@ H2H_Parameters_Str  Transform_Parameters_HWSG(H2H_Parameters_Str InPar)
     OutPar.HwSG_Parameters_frame[11] = HexToDec(InPar.HwSGsetup9_TEMDOWNLimit % 100); // ²âÎÂÏÂÏÞ10Î»
     OutPar.HwSG_Parameters_frame[12] = HexToDec(InPar.HwSGsetup10_GapInAverage);      // 1sÄÚ Æ½¾ùÖµ»¥²éÏÞ Í¨³£Îª20
     OutPar.HwSG_Parameters_frame[13] = HexToDec(InPar.HwSGsetup11_GainLimit);         // ×î´óÔöÒæÏÞÖÆÏµÊý 00-99
+
+    return OutPar;
 }
 
 // °Ñ HWSGÒÇÆ÷²ÎÊýÊ¹ÓÃµÄ¹ÖÒìÊ®½øÖÆ  ×ª»»Îª INT8Êý¾Ý
 uint8_t H2DecToHex(int8_t H2_Dec)
 {
     uint8_t D_Hex;
-    D_Hex = H2_Dec >> 4 * 10 + H2_Dec & B00001111;
+    D_Hex = ((H2_Dec >> 4) * 10) + (H2_Dec & B00001111);
     return D_Hex;
 }
 //Ö¸Õë·½Ê½×ª»» ¹ÖÒì²ÎÊý µ½ C++ Êý¾Ý¸ñÊ½
@@ -323,7 +317,7 @@ void Transform_Parameters_INT(H2H_Parameters_Str *InPar)
 {
     //  HwSGsetup0_radiant; //  ·¢ÉäÂÊÆÂ¶È  99   -99  ¶ÔÓ¦ 19.8%   -19.8%
     InPar->HwSGsetup0_radiant = (float)(H2DecToHex(InPar->HwSG_Parameters_frame[0]) )/ 5;
-    if (InPar->HwSG_Parameters_frame[15] & B00000001 > 0)       // 15ºÅ²ÎÊý×¨Ë¾·ûºÅ£¬D0Îª1 ±íÊ¾ 0ºÅ²ÎÊýÎª¸ºÖµ
+    if ((InPar->HwSG_Parameters_frame[15] & B00000001 )> 0)       // 15ºÅ²ÎÊý×¨Ë¾·ûºÅ£¬D0Îª1 ±íÊ¾ 0ºÅ²ÎÊýÎª¸ºÖµ
     {                                                           //
         InPar->HwSGsetup0_radiant = -(InPar->HwSGsetup0_radiant); //
     }
