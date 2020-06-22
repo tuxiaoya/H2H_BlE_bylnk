@@ -4,33 +4,6 @@
 
 
 
-// blynk V引脚 定义
-#define VirPort_ONbutton V0
-// #define VirPort_LCD V1
-#define VirPort_Terminal V2
-#define VirPort_ObjTemp V5
-#define VirPort_AmbTemp V6
-#define VirPort_GETParameters V10
-#define VirPort_SETParameters V11
-#define VirPort_ParTerminal   V19
-#define VirPort_ParHwSG_radiant V20         //  发射率坡度  9.9   -9.9    20%--20%
-#define VirPort_ParHwSG_PlaceID V21         //  地址编号 00-99
-#define VirPort_ParHwSG_ResponseTime V22   //  响应时间 秒 0.1-9.9
-#define VirPort_ParHwSG_DisStayPeriod V23  //  保持时间    0.1-9.9
-#define VirPort_ParHwSG_RecordPeriod V24   //  定时记录间隔  1，6，12，18，24，30
-#define VirPort_ParHwSG_ShutDownPeriod V25 //  定时关机时间  分钟  00-59
-#define VirPort_ParHwSG_ALimit V26         //  最低辐射A值  00-99
-#define VirPort_ParHwSG_UartID V27         //  通讯编号  0-7
-#define VirPort_ParHwSG_TEMUPLimit V28     // 测温上限
-#define VirPort_ParHwSG_TEMDOWNLimit V29   // 测温下限
-#define VirPort_ParHwSG_GapInAverage V30   //  平均值互差  10-99
-#define VirPort_ParHwSG_GainLimit V31      //  最大增益限制系数 00-99
-
-#define VirPort_H2HMem4000_TEM V40      //  接受HWSG2H存储温度数组的接口 
-
-WidgetTerminal terminal(VirPort_Terminal);
-WidgetTerminal ParTerminal(VirPort_ParTerminal);
-
 // blynk button  GETParameters 手机按下读取参数
 BLYNK_WRITE(VirPort_GETParameters)
 {
@@ -181,36 +154,6 @@ BLYNK_WRITE(VirPort_ParHwSG_GainLimit)
 // this function do every second push Tem to blynk app  
 // You can send any value at any time.  
 // Please don't send more that 10 values per second.
-void H2HTimerEvent()   //Blynk 时间任务 ：目前设定为每秒执行
-{
-    if (HWSGTxD_OK)
-    {
-        SecTick_Tem = HWSG2H.GetHWSG2_RealtimeTemp(DEFAULT_Adr);  //读取H2H实时温度
-#ifdef H2H_BLE_DEBUG
 
-        Serial.print("ObjTemp=");
-        Serial.println(SecTick_Tem.ObjTemp);
-        Serial.print("AmbTemp=");
-        Serial.println(SecTick_Tem.AmbTemp);
-        Serial.print("time_t=");
-        Serial.println(SecTick_Tem.timeStamp);
-        Serial.print("State=");
-        Serial.println(SecTick_Tem.Temp_State);
-#else
-#endif
-
-        if (SecTick_Tem.Temp_State == HWSG_TEM_OK)
-        {
-            Blynk.virtualWrite(VirPort_ObjTemp, SecTick_Tem.ObjTemp);
-            Blynk.virtualWrite(VirPort_AmbTemp, SecTick_Tem.AmbTemp);
-        }
-        else
-        {
-            terminal.clear(); 
-            terminal.println("Uart Err!");
-            terminal.flush(); // Ensure everything is sent
-        }
-    }
-}
 
 #endif
