@@ -177,8 +177,8 @@ HWSG2_Online_Uartframe MinGuang_HWSH2::RXD_TEM_Frame(uint8_t HWSGAddress) // ·¢³
         {
 #ifdef Uart_DEBUG
 
-            Serial.print("HWSG_TeM_OK:");
-            Serial.print(idx);
+            Serial.println("HWSG_TeM_OK:");
+            Serial.println(idx);
 #endif
             reading_frame.RX_state = HWSG_UART_OK; // Ö¡Êý¾ÝÕý³£
             return reading_frame;
@@ -206,31 +206,40 @@ H2H_Parameters_Str MinGuang_HWSH2::Get_HWSG2H_parameters(uint8_t HWSGAddress) //
 
     H2H_Parameters_Str H2Par_Str;
     TXD_GETpar_Handshake(HWSGAddress);
+    bool GetD0 = false;
     uint8_t inByte;
     uint8_t idx = 0;
     unsigned long currentMillis = millis();
     unsigned long TxDstart_Millis;
     TxDstart_Millis = currentMillis;
 
-    while (currentMillis - TxDstart_Millis < HWSG2_uart_timeout) //  ÅÐ¶ÏUART ÊÇ·ñ½ÓÊÜ³¬Ê±
+    while (currentMillis - TxDstart_Millis < HWSG2_uart_timeout * 2) //  ÅÐ¶ÏUART ÊÇ·ñ½ÓÊÜ³¬Ê±
     {
         currentMillis = millis();       //
         if (_h2Serial->available() > 0) //»º³åÇø»¹ÓÐÊý
         {
             inByte = _h2Serial->read(); // get incoming byte:
-            H2Par_Str.HwSG_Parameters_frame[idx] = inByte;
-            idx++;
+            if (GetD0) {
+                H2Par_Str.HwSG_Parameters_frame[idx] = inByte;
+                idx++;
+            }
+            if ((idx == 0) && (inByte == (HWSGAddress + _HWSG_GETPAR_CMD0))){
+                GetD0= true ;
+            }                  
+            
 #ifdef Uart_DEBUG
             Serial.print(idx);
             Serial.print(":0x");
             Serial.println(inByte, HEX);
+
+
 #endif
         }
         if (idx == 16) //  ¼ÓÉÏÖ¡Í· D0 ¹²½ÓÊÜµ½17Ö¡Êý¾Ý0-16
         {
 #ifdef Uart_DEBUG
-            Serial.print("Parameters_OK:");
-            Serial.print(idx);
+            Serial.println("Parameters_OK:");
+            Serial.println(idx);
 #endif
             H2Par_Str.HwSGsetup12_Backup = HWSG_UART_OK; // Ö¡Êý¾ÝÕý³£
             return H2Par_Str;
@@ -256,7 +265,7 @@ boolean MinGuang_HWSH2::Set_H2H_parameters(uint8_t HWSGAddress, H2H_Parameters_S
     unsigned long currentMillis = millis();
     unsigned long TxDstart_Millis;
     TxDstart_Millis = currentMillis;
-    while (currentMillis - TxDstart_Millis < HWSG2_uart_timeout) //  ÅÐ¶ÏUART ÊÇ·ñ½ÓÊÜ³¬Ê±
+    while (currentMillis - TxDstart_Millis < HWSG2_uart_timeout * 2) //  ÅÐ¶ÏUART ÊÇ·ñ½ÓÊÜ³¬Ê±
     {
         currentMillis = millis();       //
         if (_h2Serial->available() > 0) //»º³åÇø»¹ÓÐÊý
@@ -267,6 +276,12 @@ boolean MinGuang_HWSH2::Set_H2H_parameters(uint8_t HWSGAddress, H2H_Parameters_S
                 for (uint8_t i = 0; i < 16; i++)
                 {
                     SERIAL_WRITE(SetPar.HwSG_Parameters_frame[i]);
+#ifdef Uart_DEBUG
+                    Serial.println("Send Parameters:");
+                    Serial.print(i);
+                    Serial.print("=0x");
+                    Serial.println(SetPar.HwSG_Parameters_frame[i], HEX);
+#endif
                 }
                 return true; //  ·¢ËÍ16Ö¡2H²ÎÊýÍê³É return true
             }
@@ -286,7 +301,7 @@ uint8_t HexToDec(int8_t D_Hex)
     return D_Dec;
 }
 
-//    ×ª»»2H²ÎÊý½á¹¹Êý¾Ý   *HWSGÒÇÆ÷²ÎÊýÊ¹ÓÃµÄÊÇBCDÊ®½øÖÆ  ****·Ç³ÉÔ±º¯Êý
+//    ×ª»»2H²ÎÊý½á¹¹Êý¾Ý      *HWSGÒÇÆ÷²ÎÊýÊ¹ÓÃµÄÊÇBCDÊ®½øÖÆ  ****·Ç³ÉÔ±º¯Êý
 H2H_Parameters_Str  Transform_Parameters_HWSG(H2H_Parameters_Str InPar)
 {
     H2H_Parameters_Str OutPar;
@@ -294,7 +309,7 @@ H2H_Parameters_Str  Transform_Parameters_HWSG(H2H_Parameters_Str InPar)
     OutPar.HwSG_Parameters_frame[15] = 0;
     //  HwSGsetup0_radiant; //  ·¢ÉäÂÊÆÂ¶È  99   -99  ¶ÔÓ¦ 19.8%   -19.8%
     OutPar.HwSG_Parameters_frame[0] =HexToDec((uint8_t)(InPar.HwSGsetup0_radiant * 5));
-    if (InPar.HwSGsetup0_radiant < 0)
+    if (InPar.HwSGsetup0_radiant <0)
     {                                                  //  Èç¹ûÎª¸ºÖµ ÖÃ¶ÔÓ¦µÄ µÚF#par ·ûºÅÎ» |=
         OutPar.HwSG_Parameters_frame[15] |= B00000001; //D0
     }

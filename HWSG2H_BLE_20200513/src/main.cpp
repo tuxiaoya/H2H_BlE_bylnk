@@ -67,7 +67,7 @@
 
 #else
 
-
+ 
 
 #endif
 
@@ -128,7 +128,7 @@ void myTimerEvent() //Blynk 时间任务 ：目前设定为每秒执行
     else
     {
       terminal.clear();
-      terminal.println("Uart Err!");
+      terminal.println("REV STOPED!!");
       terminal.flush(); // Ensure everything is sent
     }
   }
@@ -160,7 +160,7 @@ void setup()
   terminal.println(F("Blynk v" BLYNK_VERSION ": Device started"));
   terminal.flush();
   ParTerminal.clear();
-  ParTerminal.println(F("写入参数之前需先读取参数!"));
+  ParTerminal.println(F("Must read data before Send!!!"));
   ParTerminal.flush();
 }
 

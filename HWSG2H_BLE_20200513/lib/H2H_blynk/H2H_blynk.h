@@ -9,6 +9,7 @@ BLYNK_WRITE(VirPort_GETParameters)
 {
     HWSGTxD_OK = false; // close sending uart
     // int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
+    Serial.println("Presss read Button !!!");
     H2H_Working_Par = HWSG2H.Get_HWSG2H_parameters(DEFAULT_Adr); //接受参数
     Transform_Parameters_INT(&H2H_Working_Par);  // 转化参数为人话
     Blynk.virtualWrite(VirPort_ParHwSG_radiant, H2H_Working_Par.HwSGsetup0_radiant);
@@ -24,7 +25,12 @@ BLYNK_WRITE(VirPort_GETParameters)
     Blynk.virtualWrite(VirPort_ParHwSG_GapInAverage, H2H_Working_Par.HwSGsetup10_GapInAverage);
     Blynk.virtualWrite(VirPort_ParHwSG_GainLimit, H2H_Working_Par.HwSGsetup11_GainLimit);
     ParTerminal.clear();
-    ParTerminal.println(F("参数读取成功!"));
+    ParTerminal.println(F("Read Parameters:"));
+    for(int8_t i=0;i<15;i++){
+        ParTerminal.print(i);
+        ParTerminal.print(":0x");
+        ParTerminal.println(H2H_Working_Par.HwSG_Parameters_frame[i], HEX);
+    }
     ParTerminal.flush();
     HWSG2H_PAR_Got = true;
     HWSGTxD_OK = true; // open sending uart
@@ -38,19 +44,19 @@ BLYNK_WRITE(VirPort_SETParameters)
     ParTerminal.clear();
     if (HWSG2H.Set_H2H_parameters(DEFAULT_Adr, H2H_Working_Par)) //  如果发送参数成功
     {
-        ParTerminal.println(F("参数发送成功!"));
+        ParTerminal.println(F("Parameters send !"));
         ParTerminal.flush();
     }
     else{
-        ParTerminal.println(F("参数发送失败!!"));
-        ParTerminal.println(F("请5秒后再次尝试!"));
+        ParTerminal.println(F("Parameters send falsed,!!"));
+        ParTerminal.println(F("try 5 second late!"));
         ParTerminal.flush();
     } 
     HWSGTxD_OK = true; // open sending uart 
    }
    else{
        ParTerminal.clear();
-       ParTerminal.println(F("请先读取参数!"));
+       ParTerminal.println(F("Please read Parameters first!!!!"));
        ParTerminal.flush();
    }
 
@@ -59,11 +65,10 @@ BLYNK_WRITE(VirPort_SETParameters)
 // blynk button ON to swtich  tem  手机按下测温开关
 BLYNK_WRITE(VirPort_ONbutton)
 {
-//  int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
-#ifdef H2H_BLE_DEBUG
-//  Serial.println(pinValue);
-#endif
+    // int8_t PlaceID = param.asInt();
     HWSGTxD_OK = !HWSGTxD_OK;
+    Serial.print("OnButton Press:");
+    Serial.println(HWSGTxD_OK);
     set_led(HWSGTxD_OK);
 }
 
