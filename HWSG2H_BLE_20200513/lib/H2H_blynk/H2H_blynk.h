@@ -8,7 +8,7 @@
 BLYNK_WRITE(VirPort_GETParameters)
 {
     HWSGTxD_OK = false; // close sending uart
-    // int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
+    int pinValue = param.asInt(); // assigning incoming value from pin V1 to a variable
     Serial.println("Presss read Button !!!");
     H2H_Working_Par = HWSG2H.Get_HWSG2H_parameters(DEFAULT_Adr); //接受参数
     Transform_Parameters_INT(&H2H_Working_Par);  // 转化参数为人话
